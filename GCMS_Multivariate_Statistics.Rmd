@@ -1,6 +1,6 @@
 ---
 title: "Title"
-author: "Pablo yyyy, Jefferson Pastuña"
+author: "Pablo Espin, Jefferson Pastuña"
 date: "2025-03-26"
 output:
   github_document:
