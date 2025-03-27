@@ -852,3 +852,5 @@ INFO [2025-03-27 17:58:49] Found 3299 connections
 INFO [2025-03-27 17:58:50] Found 141 clusters of 2 or more features, clustering finished at 2025-03-27 17:58:50.30384
 INFO [2025-03-27 18:00:01] Saved cluster plots to: ../B_caapi_in_vitro/Result/Cluster/
 INFO [2025-03-27 18:00:02] Clusters compressed, left with 331 features
+INFO [2025-03-27 18:56:07] Starting PQN normalization
+INFO [2025-03-27 18:56:07] Using median of qc samples as reference spectrum
