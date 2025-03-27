@@ -115,15 +115,16 @@ Then we can visualize the data after drift correction.
 
 # Boxplot
 corr_bp <- plot_sample_boxplots(corrected,
-                                order_by = "Group",
-                                fill_by = "Species")
+                                order_by = "Visit",
+                                fill_by = "Group")
 # PCA
 corr_pca <- plot_pca(corrected,
                      center = TRUE,
-                     shape = "Species",
-                     color = "Species")
+                     shape = "Group",
+                     color = "Group")
 # Plot
-corr_pca + corr_bp
+corr_pca 
+corr_bp
 
 ```
 
@@ -148,15 +149,16 @@ We can visualize data...
 
 # Boxplot
 clust_bp <- plot_sample_boxplots(compressed,
-                                 order_by = "Group",
-                                 fill_by = "Species")
+                                 order_by = "Visit",
+                                 fill_by = "Group")
 # PCA
 clust_pca <- plot_pca(compressed,
                       center = TRUE,
-                      shape = "Species",
-                      color = "Species")
+                      shape = "Group",
+                      color = "Group")
 # Plot
-clust_pca + clust_bp
+clust_pca
+clust_bp
 
 ```
 
@@ -189,15 +191,16 @@ We can inspect PCA plot after...
 
 # Boxplot
 imp_bp <- plot_sample_boxplots(imputed,
-                               order_by = "Group",
-                               fill_by = "Species")
+                               order_by = "Visit",
+                               fill_by = "Group")
 # PCA
 imp_pca <- plot_pca(imputed,
                     center = TRUE,
-                    shape = "Species",
-                    color = "Species")
+                    shape = "Group",
+                    color = "Group")
 # Plot
-imp_pca + imp_bp
+imp_pca
+imp_bp
 
 ```
 
@@ -219,15 +222,16 @@ We can inspect PCA plot after...
 
 # Boxplot
 pqn_bp <- plot_sample_boxplots(pqn_set,
-                               order_by = "Group",
-                               fill_by = "Species")
+                               order_by = "Visit",
+                               fill_by = "Group")
 # PCA
 pqn_pca <- plot_pca(pqn_set,
                     center = TRUE,
-                    shape = "Species",
-                    color = "Species")
+                    shape = "Group",
+                    color = "Group")
 # Plot
-pqn_pca + pqn_bp
+pqn_pca
+pqn_bp
 
 ```
 
@@ -268,7 +272,7 @@ scores <- ei_pca$x %>%                   # Get PC coordinates
   left_join(pheno_data )                 # Adding metadata
 # PCA plot
 figure_1a <- ggplot(scores,
-       aes(PC1, PC2, shape = Species, color = Species)) +
+       aes(PC1, PC2, shape = Group, color = Group)) +
   geom_point(size = 3) +
   guides(x=guide_axis(title = "PC1 (20.05 %)"),
          y=guide_axis(title = "PC2 (17.78 %)")) +
@@ -345,9 +349,9 @@ ComplexHeatmap package and dependency installation.
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE, results='hide'}
 
 # ComplexHeatmap package installation
-#if (!requireNamespace("BiocManager", quietly=TRUE))
-#    install.packages("BiocManager")
-#BiocManager::install("ComplexHeatmap")
+if (!requireNamespace("BiocManager", quietly=TRUE))
+    install.packages("BiocManager")
+BiocManager::install("ComplexHeatmap")
 library(ComplexHeatmap)
 
 # ColorRamp2 package installation
