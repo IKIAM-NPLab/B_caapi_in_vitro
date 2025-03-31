@@ -254,13 +254,13 @@ library(dplyr)
 # Eliminar el estándar interno antes de PCA
 is_norm_noIS <- is_norm[rownames(is_norm) != "Rtx5_EI_194_052603269692a25_099312", ]
 
-# Transponer para PCA (PCA necesita muestras en filas)
+# Transponer para PCA 
 is_norm_t <- t(is_norm_noIS)
 
 # Realizar PCA
 ei_pca <- prcomp(is_norm_t, scale. = TRUE)
 
-# Crear tabla de scores con los metadatos (pheno_data debe tener columna Sample_ID)
+# Crear tabla de scores con los metadatos
 scores <- ei_pca$x %>%
   data.frame() %>%
   mutate(Sample_ID = rownames(.)) %>%
