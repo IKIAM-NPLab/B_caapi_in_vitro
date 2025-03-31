@@ -88,12 +88,37 @@ mode <- mark_nas(mode, value = 0)
 
 ```
 
+Raw data inspection...
+
+```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
+
+# Boxplot
+bp_raw <- plot_sample_boxplots(mode,
+                               order_by = "Injection_order",
+                               fill_by = "QC")
+# PCA
+pca_raw <- plot_pca(mode,
+                    center = TRUE,
+                    shape = "QC",
+                    color = "QC")
+# Package to plots visualization in a same windows
+#if (!requireNamespace("devtools", quietly = TRUE)) {
+#  install.packages("devtools")
+#}
+#devtools::install_github("thomasp85/patchwork")
+library(patchwork)
+# Plot
+bp_raw + pca_raw
+
+```
+
+
 Then...
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
 
 # Low detection rate
-mode <- flag_detection(mode, qc_limit = 6/9, group_limit = 2/3)
+mode <- flag_detection(mode, qc_limit = 0.7, group_limit = 6/9)
 
 ```
 
@@ -103,9 +128,9 @@ The next step...
 
 # Drift correction
 corrected <- correct_drift(mode)
-corrected <- correct_drift(corrected)
+#corrected <- correct_drift(corrected)
 # Flag low quality features
-corrected <- flag_quality(corrected, condition = "RSD_r < 0.3 & D_ratio_r < 0.6")
+corrected <- flag_quality(corrected, condition = "RSD_r < 0.3 & D_ratio_r < 0.74")
 
 ```
 
@@ -115,16 +140,15 @@ Then we can visualize the data after drift correction.
 
 # Boxplot
 corr_bp <- plot_sample_boxplots(corrected,
-                                order_by = "Visit",
-                                fill_by = "Group")
+                                order_by = "QC",
+                                fill_by = "QC")
 # PCA
 corr_pca <- plot_pca(corrected,
                      center = TRUE,
-                     shape = "Group",
-                     color = "Group")
+                     shape = "QC",
+                     color = "QC")
 # Plot
-corr_pca 
-corr_bp
+corr_pca + corr_bp
 
 ```
 
@@ -136,8 +160,8 @@ clustered <- cluster_features(corrected,
                               rt_window = 1/60,
                               corr_thresh = 0.95,
                               d_thresh = 0.85,
-                              #plotting = TRUE,
-                              #prefix = paste0(ppath, "Result/notame_Result/HS_GCMS/Cluster")
+                              plotting = TRUE,
+                              prefix = paste0(ppath, "Result/Cluster/")
                               )
 compressed <- compress_clusters(clustered)
 
@@ -166,7 +190,7 @@ Finally the data is...
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
 
-#save(imputed, file = paste0(ppath, "Result/notame_Result/HS_GCMS/Notame_HS_GC-MS_out.RData"))
+#save(compressed, file = paste0(ppath, "Result/Notame_GC-MS_out.RData"))
 
 ```
 
@@ -181,7 +205,7 @@ Here read this paper: https://doi.org/10.1007%2Fs11306-016-1030-9
 # To all data
 #imputed <- impute_rf(imputed, all_features = TRUE)
 # Impute missing values using noise threshold
-imputed <- impute_simple(compressed, value = 45, na_limit = 0)
+imputed <- impute_simple(compressed, value = 100, na_limit = 0)
 
 ```
 
@@ -191,16 +215,15 @@ We can inspect PCA plot after...
 
 # Boxplot
 imp_bp <- plot_sample_boxplots(imputed,
-                               order_by = "Visit",
-                               fill_by = "Group")
+                               order_by = "QC",
+                               fill_by = "QC")
 # PCA
 imp_pca <- plot_pca(imputed,
                     center = TRUE,
                     shape = "Group",
                     color = "Group")
 # Plot
-imp_pca
-imp_bp
+imp_pca + imp_bp
 
 ```
 
