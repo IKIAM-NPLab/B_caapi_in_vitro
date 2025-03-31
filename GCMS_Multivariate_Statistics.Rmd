@@ -173,16 +173,15 @@ We can visualize data...
 
 # Boxplot
 clust_bp <- plot_sample_boxplots(compressed,
-                                 order_by = "Visit",
-                                 fill_by = "Group")
+                                 order_by = "QC",
+                                 fill_by = "QC")
 # PCA
 clust_pca <- plot_pca(compressed,
                       center = TRUE,
-                      shape = "Group",
-                      color = "Group")
+                      shape = "QC",
+                      color = "QC")
 # Plot
-clust_pca
-clust_bp
+clust_pca + clust_bp
 
 ```
 
@@ -231,30 +230,59 @@ The next step...
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
 
-# Probabilistic quotient normalization
-pqn_set <- pqn_normalization(imputed,
-                             ref = c("qc", "all"),
-                             method = c("median", "mean"),
-                             all_features = FALSE)
+# Internal Standar Normalization
+# Feature table extraction
+feat_table <- exprs(imputed)
+
+# Internal standard data extraction
+is_data <- feat_table["Rtx5_EI_194_052603269692a25_099312", ]
+
+# Internal standard normalization
+is_norm <- sweep(feat_table, 2, is_data , "/")
+
 
 ```
 
 We can inspect PCA plot after...
 
-```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
+```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE, results='hide', fig.width = 7, fig.height = 4}
 
-# Boxplot
-pqn_bp <- plot_sample_boxplots(pqn_set,
-                               order_by = "Visit",
-                               fill_by = "Group")
-# PCA
-pqn_pca <- plot_pca(pqn_set,
-                    center = TRUE,
-                    shape = "Group",
-                    color = "Group")
-# Plot
-pqn_pca
-pqn_bp
+# Librerías necesarias
+library(ggplot2)
+library(dplyr)
+
+# Eliminar el estándar interno antes de PCA
+is_norm_noIS <- is_norm[rownames(is_norm) != "Rtx5_EI_194_052603269692a25_099312", ]
+
+# Transponer para PCA (PCA necesita muestras en filas)
+is_norm_t <- t(is_norm_noIS)
+
+# Realizar PCA
+ei_pca <- prcomp(is_norm_t, scale. = TRUE)
+
+# Crear tabla de scores con los metadatos (pheno_data debe tener columna Sample_ID)
+scores <- ei_pca$x %>%
+  data.frame() %>%
+  mutate(Sample_ID = rownames(.)) %>%
+  left_join(imputed@phenoData@data, by = "Sample_ID")
+
+# Graficar PCA
+figure_1a <- ggplot(scores, aes(PC1, PC2, shape = Group, color = Group)) +
+  geom_point(size = 3, stroke = 1, shape = 21, fill = "white") +
+  geom_point(size = 3) +
+  guides(x = guide_axis(title = "PC1 (20.05 %)"),
+         y = guide_axis(title = "PC2 (17.78 %)")) +
+  theme_classic() +
+  theme(legend.text = element_text(face = "italic")) +
+  theme(legend.position = c(0.890, 0.790),
+        legend.background = element_rect(fill = "white", color = "black")) +
+  theme(panel.grid = element_blank(),
+        panel.border = element_rect(fill = "transparent")) +
+  geom_vline(xintercept = 0, linetype = "longdash", colour = "gray") +
+  geom_hline(yintercept = 0, linetype = "longdash", colour = "gray")
+
+# Mostrar figura
+figure_1a
 
 ```
 
