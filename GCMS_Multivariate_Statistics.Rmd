@@ -323,6 +323,92 @@ pqn_pca <- plot_pca(pqn_set,
 pqn_pca + pqn_bp
 
 ```
+```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
+
+merged <- merge_metabosets(imputed)
+
+merged_no_qc <- drop_qcs(merged)
+
+feat_table <- exprs(merged_no_qc)
+
+masses <- merged_no_qc@phenoData@data$Mass
+
+mass_norm <- sweep(feat_table, 2, masses, "/")
+
+```
+
+```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE, results='hide', fig.width = 7, fig.height = 4}
+
+# Librerías necesarias
+library(ggplot2)
+library(dplyr)
+
+# Eliminar la columna del blanco (ID_4)
+data_noBlank <- mass_norm[, colnames(mass_norm) != "ID_4"]
+
+# Transponer para PCA 
+mass_norm_t <- t(data_noBlank)
+
+# Realizar PCA
+mass_norm_pca <- prcomp(mass_norm_t, scale. = TRUE)
+
+# Crear tabla de scores con los metadatos
+scores <- mass_norm_pca$x %>%
+  data.frame() %>%
+  mutate(Sample_ID = rownames(.)) %>%
+  left_join(imputed@phenoData@data, by = "Sample_ID")
+
+# Graficar PCA
+figure_1a <- ggplot(scores, aes(PC1, PC2, shape = Group, color = Group)) +
+  geom_point(size = 1, stroke = 1, shape = 4, fill = "white") +
+  geom_point(size = 2) +
+  guides(x = guide_axis(title = paste0("PC1 (", round(summary(mass_norm_pca)$importance[2,1]*100, 2), " %)")),
+         y = guide_axis(title = paste0("PC2 (", round(summary(mass_norm_pca)$importance[2,2]*100, 2), " %)"))) +
+  theme_classic() +
+  theme(legend.text = element_text(face = "italic")) +
+  theme(legend.position = c(0.890, 0.790),
+        legend.background = element_rect(fill = "white", color = "black")) +
+  theme(panel.grid = element_blank(),
+        panel.border = element_rect(fill = "transparent")) +
+  geom_vline(xintercept = 0, linetype = "longdash", colour = "gray") +
+  geom_hline(yintercept = 0, linetype = "longdash", colour = "gray")
+
+# Mostrar figura
+figure_1a
+
+```
+```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
+
+modes_mass <- construct_metabosets(
+  exprs = mass_norm,
+  pheno_data = merged_no_qc@phenoData@data,      
+  feature_data = merged_no_qc@featureData@data,         
+  group_col = "Group"                    
+)
+
+mode_mass <- modes_mass$Rtx5_EI
+
+# Probabilistic quotient normalization
+pqn_set <- pqn_normalization(mode_mass,
+                             ref = c("all"),
+                             method = c("median", "mean"),
+                             all_features = FALSE)
+
+
+# Boxplot
+pqn_bp <- plot_sample_boxplots(pqn_set,
+                               order_by = "Group",
+                               fill_by = "Group")
+# PCA
+pqn_pca <- plot_pca(pqn_set,
+                    center = TRUE,
+                    shape = "Group",
+                    color = "Group")
+# Plot
+pqn_pca + pqn_bp
+
+```
+
 
 Droping flagged features...
 
