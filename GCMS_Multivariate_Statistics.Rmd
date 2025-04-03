@@ -325,14 +325,15 @@ pqn_pca + pqn_bp
 ```
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
 
-merged <- merge_metabosets(imputed)
+# Mass normalization
 
-merged_no_qc <- drop_qcs(merged)
+# Feature table extraction
+feat_table <- exprs(imputed)
 
-feat_table <- exprs(merged_no_qc)
+# Mass data extraction
+masses <- imputed@phenoData@data$Mass
 
-masses <- merged_no_qc@phenoData@data$Mass
-
+#normalization by mass
 mass_norm <- sweep(feat_table, 2, masses, "/")
 
 ```
@@ -344,10 +345,10 @@ library(ggplot2)
 library(dplyr)
 
 # Eliminar la columna del blanco (ID_4)
-data_noBlank <- mass_norm[, colnames(mass_norm) != "ID_4"]
+mass_norm_noBlank <- mass_norm[, colnames(mass_norm) != "ID_4"]
 
 # Transponer para PCA 
-mass_norm_t <- t(data_noBlank)
+mass_norm_t <- t(mass_norm_noBlank)
 
 # Realizar PCA
 mass_norm_pca <- prcomp(mass_norm_t, scale. = TRUE)
@@ -379,33 +380,48 @@ figure_1a
 ```
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
 
-modes_mass <- construct_metabosets(
-  exprs = mass_norm,
-  pheno_data = merged_no_qc@phenoData@data,      
-  feature_data = merged_no_qc@featureData@data,         
-  group_col = "Group"                    
-)
+# Is + Mass Normalization
 
-mode_mass <- modes_mass$Rtx5_EI
+is_mass_norm <- sweep(is_norm, 2, masses, "/")
 
-# Probabilistic quotient normalization
-pqn_set <- pqn_normalization(mode_mass,
-                             ref = c("all"),
-                             method = c("median"),
-                             all_features = FALSE)
+# Librerías necesarias
+library(ggplot2)
+library(dplyr)
+
+# Eliminar la columna del blanco (ID_4)
+is_mass_norm_noBlank <- is_mass_norm[, colnames(is_mass_norm) != "ID_4"]
+
+# Transponer para PCA 
+is_mass_norm_t <- t(is_mass_norm_noBlank)
+
+# Realizar PCA
+is_mass_norm_pca <- prcomp(is_mass_norm_t, scale. = TRUE)
+
+# Crear tabla de scores con los metadatos
+scores <- is_mass_norm_pca$x %>%
+  data.frame() %>%
+  mutate(Sample_ID = rownames(.)) %>%
+  left_join(imputed@phenoData@data, by = "Sample_ID")
+
+# Graficar PCA
+figure_1a <- ggplot(scores, aes(PC1, PC2, shape = Group, color = Group)) +
+  geom_point(size = 1, stroke = 1, shape = 4, fill = "white") +
+  geom_point(size = 2) +
+  guides(x = guide_axis(title = paste0("PC1 (", round(summary(is_mass_norm_pca)$importance[2,1]*100, 2), " %)")),
+         y = guide_axis(title = paste0("PC2 (", round(summary(is_mass_norm_pca)$importance[2,2]*100, 2), " %)"))) +
+  theme_classic() +
+  theme(legend.text = element_text(face = "italic")) +
+  theme(legend.position = c(0.890, 0.790),
+        legend.background = element_rect(fill = "white", color = "black")) +
+  theme(panel.grid = element_blank(),
+        panel.border = element_rect(fill = "transparent")) +
+  geom_vline(xintercept = 0, linetype = "longdash", colour = "gray") +
+  geom_hline(yintercept = 0, linetype = "longdash", colour = "gray")
+
+# Mostrar figura
+figure_1a
 
 
-# Boxplot
-pqn_bp <- plot_sample_boxplots(pqn_set,
-                               order_by = "Group",
-                               fill_by = "Group")
-# PCA
-pqn_pca <- plot_pca(pqn_set,
-                    center = TRUE,
-                    shape = "Group",
-                    color = "Group")
-# Plot
-pqn_pca + pqn_bp
 
 ```
 
