@@ -391,7 +391,7 @@ mode_mass <- modes_mass$Rtx5_EI
 # Probabilistic quotient normalization
 pqn_set <- pqn_normalization(mode_mass,
                              ref = c("all"),
-                             method = c("median", "mean"),
+                             method = c("median"),
                              all_features = FALSE)
 
 
