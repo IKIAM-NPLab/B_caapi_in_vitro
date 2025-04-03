@@ -151,12 +151,46 @@ corr_pca <- plot_pca(corrected,
 corr_pca + corr_bp
 
 ```
+Contaminant peaks based on the process blank sample will be removed.
+
+```{r echo=TRUE, message=TRUE, warning=FALSE, error=FALSE}
+
+# Removal of contaminants
+corrected_no_blank <- flag_contaminants(corrected,
+                                        blank_col = "Group",
+                                        blank_label = "Blank",
+                                        flag_thresh = 0.05,
+                                        flag_label = "Contaminant")
+# Removal blank group from dataset
+corrected_no_blank <- corrected_no_blank[, corrected_no_blank$Group != "Blank"]
+pData(corrected_no_blank) <- droplevels(pData(corrected_no_blank))
+
+```
+
+We can inspect data after removing the contaminant features.
+
+```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE, results='hide'}
+
+# Boxplot
+no_blank_bp <- plot_sample_boxplots(corrected_no_blank,
+                                    order_by = "QC",
+                                    fill_by = "QC")
+# PCA
+no_blank_pca <- plot_pca(corrected_no_blank,
+                         center = TRUE,
+                         shape = "QC",
+                         color = "QC")
+# Plot
+no_blank_pca + no_blank_bp
+
+```
+
 
 The next step...
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
 
-clustered <- cluster_features(corrected,
+clustered <- cluster_features(corrected_no_blank,
                               rt_window = 1/60,
                               corr_thresh = 0.95,
                               d_thresh = 0.85,
@@ -422,6 +456,40 @@ figure_1a <- ggplot(scores, aes(PC1, PC2, shape = Group, color = Group)) +
 figure_1a
 
 
+
+```
+```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
+
+modes_is_mass <- construct_metabosets(
+  exprs = is_mass_norm,
+  pheno_data = imputed@phenoData@data,      
+  feature_data = imputed@featureData@data,         
+  group_col = "Group"                    
+)
+
+mode_is_mass <- modes_is_mass$Rtx5_EI
+
+# Probabilistic quotient normalization
+pqn_is_mass <- pqn_normalization(mode_is_mass,
+                             ref = c("qc", "all"),
+                             method = c("median", "mean"),
+                             all_features = FALSE)
+
+```
+
+```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
+
+# Boxplot
+pqn_bp_is_mass <- plot_sample_boxplots(pqn_is_mass,
+                               order_by = "QC",
+                               fill_by = "QC")
+# PCA
+pqn_pca_is_mass <- plot_pca(pqn_is_mass,
+                    center = TRUE,
+                    shape = "Group",
+                    color = "Group")
+# Plot
+pqn_pca_is_mass + pqn_bp_is_mass
 
 ```
 
