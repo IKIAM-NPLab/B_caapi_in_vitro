@@ -159,7 +159,7 @@ Contaminant peaks based on the process blank sample will be removed.
 corrected_no_blank <- flag_contaminants(corrected,
                                         blank_col = "Group",
                                         blank_label = "Blank",
-                                        flag_thresh = 0.05,
+                                        flag_thresh = 0.8,
                                         flag_label = "Contaminant")
 # Removal blank group from dataset
 corrected_no_blank <- corrected_no_blank[, corrected_no_blank$Group != "Blank"]
