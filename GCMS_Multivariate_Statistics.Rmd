@@ -157,10 +157,10 @@ Contaminant peaks based on the process blank sample will be removed.
 
 # Removal of contaminants
 corrected_no_blank <- flag_contaminants(corrected,
-                                        blank_col = "Group",
-                                        blank_label = "Blank",
-                                        flag_thresh = 1,
-                                        flag_label = "Contaminant")
+                                       blank_col = "Group",
+                                       blank_label = "Blank",
+                                       flag_thresh = 1,
+                                       flag_label = "Contaminant")
 # Removal blank group from dataset
 corrected_no_blank <- corrected_no_blank[, corrected_no_blank$Group != "Blank"]
 pData(corrected_no_blank) <- droplevels(pData(corrected_no_blank))
@@ -333,7 +333,7 @@ modes_is <- construct_metabosets(
 mode_is <- modes_is$Rtx5_EI
 
 # Probabilistic quotient normalization
-pqn_set <- pqn_normalization(mode_is,
+is_pqn_set <- pqn_normalization(mode_is,
                              ref = c("qc"),
                              method = c("median", "mean"),
                              all_features = FALSE)
@@ -345,16 +345,16 @@ We can inspect PCA plot after...
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
 
 # Boxplot
-pqn_bp <- plot_sample_boxplots(pqn_set,
+is_pqn_bp <- plot_sample_boxplots(is_pqn_set,
                                order_by = "QC",
                                fill_by = "QC")
 # PCA
-pqn_pca <- plot_pca(pqn_set,
+is_pqn_pca <- plot_pca(is_pqn_set,
                     center = TRUE,
                     shape = "Group",
                     color = "Group")
 # Plot
-pqn_pca + pqn_bp
+is_pqn_pca + is_pqn_bp
 
 ```
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
