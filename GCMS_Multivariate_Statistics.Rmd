@@ -118,7 +118,7 @@ Then...
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
 
 # Low detection rate
-mode <- flag_detection(mode, qc_limit = 0.7, group_limit = 6/9)
+mode <- flag_detection(mode, qc_limit = 0.65, group_limit = 5/9)
 
 ```
 
@@ -130,7 +130,7 @@ The next step...
 corrected <- correct_drift(mode)
 #corrected <- correct_drift(corrected)
 # Flag low quality features
-corrected <- flag_quality(corrected, condition = "RSD_r < 0.3 & D_ratio_r < 0.74")
+corrected <- flag_quality(corrected, condition = "RSD_r < 0.3 & D_ratio_r < 0.6")
 
 ```
 
@@ -159,7 +159,7 @@ Contaminant peaks based on the process blank sample will be removed.
 corrected_no_blank <- flag_contaminants(corrected,
                                        blank_col = "Group",
                                        blank_label = "Blank",
-                                       flag_thresh = 1,
+                                       flag_thresh = 0.1,
                                        flag_label = "Contaminant")
 # Removal blank group from dataset
 corrected_no_blank <- corrected_no_blank[, corrected_no_blank$Group != "Blank"]
@@ -197,6 +197,9 @@ clustered <- cluster_features(corrected_no_blank,
                               plotting = FALSE,
                               prefix = paste0(ppath, "Result/Cluster/")
                               )
+feat_table_is <- exprs(clustered)
+caffeine_vector <- feat_table_is["Rtx5_EI_194_052603269692a25_099312", ]
+
 compressed <- compress_clusters(clustered)
 
 ```
@@ -269,10 +272,10 @@ The next step...
 feat_table <- exprs(imputed)
 
 # Internal standard data extraction
-is_data <- feat_table["Rtx5_EI_194_052603269692a25_099312", ]
+#caffeine_vector
 
 # Internal standard normalization
-is_norm <- sweep(feat_table, 2, is_data , "/")
+is_norm <- sweep(feat_table, 2, caffeine_vector , "/")
 
 ```
 
@@ -378,11 +381,8 @@ mass_norm <- sweep(feat_table, 2, masses, "/")
 library(ggplot2)
 library(dplyr)
 
-# Eliminar la columna del blanco (ID_4)
-mass_norm_noBlank <- mass_norm[, colnames(mass_norm) != "ID_4"]
-
 # Transponer para PCA 
-mass_norm_t <- t(mass_norm_noBlank)
+mass_norm_t <- t(mass_norm)
 
 # Realizar PCA
 mass_norm_pca <- prcomp(mass_norm_t, scale. = TRUE)
@@ -422,11 +422,8 @@ is_mass_norm <- sweep(is_norm, 2, masses, "/")
 library(ggplot2)
 library(dplyr)
 
-# Eliminar la columna del blanco (ID_4)
-is_mass_norm_noBlank <- is_mass_norm[, colnames(is_mass_norm) != "ID_4"]
-
 # Transponer para PCA 
-is_mass_norm_t <- t(is_mass_norm_noBlank)
+is_mass_norm_t <- t(is_mass_norm)
 
 # Realizar PCA
 is_mass_norm_pca <- prcomp(is_mass_norm_t, scale. = TRUE)
