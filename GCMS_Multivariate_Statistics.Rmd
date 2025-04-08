@@ -197,8 +197,6 @@ clustered <- cluster_features(corrected_no_blank,
                               plotting = FALSE,
                               prefix = paste0(ppath, "Result/Cluster/")
                               )
-feat_table_is <- exprs(clustered)
-caffeine_vector <- feat_table_is["Rtx5_EI_194_052603269692a25_099312", ]
 
 compressed <- compress_clusters(clustered)
 
@@ -272,7 +270,9 @@ The next step...
 feat_table <- exprs(imputed)
 
 # Internal standard data extraction
-#caffeine_vector
+feat_table_is <- exprs(clustered)   #obtained before performing compression on the clusters
+caffeine_vector <- feat_table_is["Rtx5_EI_194_052603269692a25_099312", ]
+
 
 # Internal standard normalization
 is_norm <- sweep(feat_table, 2, caffeine_vector , "/")
