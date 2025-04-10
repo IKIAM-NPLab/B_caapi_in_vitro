@@ -115,10 +115,10 @@ bp_raw + pca_raw
 
 Then...
 
-```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
+```{r echo=TRUE, error=FALSE, message=TRUE, warning=TRUE}
 
 # Low detection rate
-mode <- flag_detection(mode, qc_limit = 0.65, group_limit = 5/9)
+mode <- flag_detection(mode, qc_limit = 0.7, group_limit = 5/9)
 
 ```
 
@@ -178,8 +178,8 @@ no_blank_bp <- plot_sample_boxplots(corrected_no_blank,
 # PCA
 no_blank_pca <- plot_pca(corrected_no_blank,
                          center = TRUE,
-                         shape = "QC",
-                         color = "QC")
+                         shape = "Group",
+                         color = "Group")
 # Plot
 no_blank_pca + no_blank_bp
 
