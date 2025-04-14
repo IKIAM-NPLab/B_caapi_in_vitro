@@ -287,11 +287,8 @@ We can inspect PCA plot after...
 library(ggplot2)
 library(dplyr)
 
-# Eliminar el estándar interno antes de PCA
-is_norm_noIS <- is_norm[rownames(is_norm) != "Rtx5_EI_194_052603269692a25_099312", ]
-
 # Transponer para PCA 
-is_norm_t <- t(is_norm_noIS)
+is_norm_t <- t(is_norm)
 
 # Realizar PCA
 ei_pca <- prcomp(is_norm_t, scale. = TRUE)
@@ -360,6 +357,8 @@ is_pqn_pca <- plot_pca(is_pqn_set,
 is_pqn_pca + is_pqn_bp
 
 ```
+
+
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
 
 # Mass normalization
