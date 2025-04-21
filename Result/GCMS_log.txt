@@ -3769,3 +3769,58 @@ INFO [2025-04-21 17:52:56] Checking that feature abundances only contain numeric
 INFO [2025-04-21 17:52:56] Setting row and column names of exprs based on feature and pheno data
 INFO [2025-04-21 17:52:56] Starting homoscedasticity tests.
 INFO [2025-04-21 17:52:58] Homoscedasticity tests performed.
+INFO [2025-04-21 17:54:55] 
+Checking feature information
+INFO [2025-04-21 17:54:55] Checking that feature IDs are unique and not stored as numbers
+INFO [2025-04-21 17:54:55] Checking that feature abundances only contain numeric values
+INFO [2025-04-21 17:54:55] Setting row and column names of exprs based on feature and pheno data
+INFO [2025-04-21 17:54:56] Starting homoscedasticity tests.
+INFO [2025-04-21 17:54:58] Homoscedasticity tests performed.
+INFO [2025-04-21 17:56:21] 
+Checking feature information
+INFO [2025-04-21 17:56:21] Checking that feature IDs are unique and not stored as numbers
+INFO [2025-04-21 17:56:21] Checking that feature abundances only contain numeric values
+INFO [2025-04-21 17:56:21] Setting row and column names of exprs based on feature and pheno data
+INFO [2025-04-21 17:56:21] Starting homoscedasticity tests.
+INFO [2025-04-21 17:56:23] Homoscedasticity tests performed.
+INFO [2025-04-21 17:56:45] 
+Checking feature information
+INFO [2025-04-21 17:56:45] Checking that feature IDs are unique and not stored as numbers
+INFO [2025-04-21 17:56:45] Checking that feature abundances only contain numeric values
+INFO [2025-04-21 17:56:45] Setting row and column names of exprs based on feature and pheno data
+INFO [2025-04-21 17:56:46] Starting homoscedasticity tests.
+INFO [2025-04-21 17:56:59] 
+Checking feature information
+INFO [2025-04-21 17:56:59] Checking that feature IDs are unique and not stored as numbers
+INFO [2025-04-21 17:56:59] Checking that feature abundances only contain numeric values
+INFO [2025-04-21 17:56:59] Setting row and column names of exprs based on feature and pheno data
+INFO [2025-04-21 17:56:59] Starting homoscedasticity tests.
+INFO [2025-04-21 17:57:01] Homoscedasticity tests performed.
+INFO [2025-04-21 18:00:04] 
+Checking feature information
+INFO [2025-04-21 18:00:04] Checking that feature IDs are unique and not stored as numbers
+INFO [2025-04-21 18:00:04] Checking that feature abundances only contain numeric values
+INFO [2025-04-21 18:00:04] Setting row and column names of exprs based on feature and pheno data
+INFO [2025-04-21 18:00:06] Starting homoscedasticity tests.
+INFO [2025-04-21 18:00:08] Homoscedasticity tests performed.
+INFO [2025-04-21 18:05:21] 
+Checking feature information
+INFO [2025-04-21 18:05:21] Checking that feature IDs are unique and not stored as numbers
+INFO [2025-04-21 18:05:21] Checking that feature abundances only contain numeric values
+INFO [2025-04-21 18:05:21] Setting row and column names of exprs based on feature and pheno data
+INFO [2025-04-21 18:05:23] Starting homoscedasticity tests.
+INFO [2025-04-21 18:05:25] Homoscedasticity tests performed.
+INFO [2025-04-21 18:05:42] 
+Checking feature information
+INFO [2025-04-21 18:05:42] Checking that feature IDs are unique and not stored as numbers
+INFO [2025-04-21 18:05:42] Checking that feature abundances only contain numeric values
+INFO [2025-04-21 18:05:42] Setting row and column names of exprs based on feature and pheno data
+INFO [2025-04-21 18:05:46] Starting homoscedasticity tests.
+INFO [2025-04-21 18:05:48] Homoscedasticity tests performed.
+INFO [2025-04-21 18:06:15] 
+Checking feature information
+INFO [2025-04-21 18:06:15] Checking that feature IDs are unique and not stored as numbers
+INFO [2025-04-21 18:06:15] Checking that feature abundances only contain numeric values
+INFO [2025-04-21 18:06:15] Setting row and column names of exprs based on feature and pheno data
+INFO [2025-04-21 18:06:18] Starting homoscedasticity tests.
+INFO [2025-04-21 18:06:20] Homoscedasticity tests performed.

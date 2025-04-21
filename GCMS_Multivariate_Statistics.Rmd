@@ -562,7 +562,7 @@ mode_is_mass_norm <- modes_is_mass_norm$Rtx5_EI
 homoscedasticity_test_is_mass <- perform_homoscedasticity_tests(
   mode_is_mass_norm,
   formula_char = "Feature ~ Group",
-  all_features
+  all_features = TRUE
 )
 
 # Summarize results

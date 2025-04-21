@@ -23,6 +23,40 @@ caffeine_vector <- feat_table_is["Rtx5_EI_194_052603269692a25_099312", ]
 # Normalize log-transformed data by internal standard
 is_norm_log <- sweep(feat_table_log, 2, caffeine_vector, "/")
 
+
+#PCA plot of the internal standard normalized data
+# Transpose feature matrix for PCA (samples as rows)
+is_norm_log_t <- t(is_norm_log)
+
+# Perform PCA with scaling
+is_norm_log_pca <- prcomp(is_norm_log_t, scale. = TRUE)
+
+# Merge PCA scores with sample metadata
+scores <- is_norm_log_pca$x %>%
+  data.frame() %>%
+  mutate(Sample_ID = rownames(.)) %>%
+  left_join(imputed@phenoData@data, by = "Sample_ID")
+
+# PCA plot: PC1 vs PC2
+figure_1a <- ggplot(scores, aes(PC1, PC2, shape = Group, color = Group)) +
+  geom_point(size = 2) +
+  labs(
+    x = paste0("PC1 (", round(summary(is_norm_log_pca)$importance[2,1]*100, 2), " %)"),
+    y = paste0("PC2 (", round(summary(is_norm_log_pca)$importance[2,2]*100, 2), " %)")
+  ) +
+  theme_classic() +
+  theme(
+    legend.position = c(0.89, 0.79),
+    legend.background = element_rect(fill = "white", color = "black"),
+    panel.grid = element_blank(),
+    panel.border = element_rect(fill = "transparent")
+  ) +
+  geom_vline(xintercept = 0, linetype = "longdash", color = "gray") +
+  geom_hline(yintercept = 0, linetype = "longdash", color = "gray")
+
+# Display plot
+figure_1a
+
 # ------------------------------
 # Homoscedasticity & Normality Test (IS normalization)
 # ------------------------------
@@ -113,6 +147,39 @@ masses <- imputed@phenoData@data$Mass
 # Normalize by sample mass
 mass_norm_log <- sweep(feat_table_log, 2, masses, "/")
 
+#PCA plot of the mass normalized data
+# Transpose feature matrix for PCA (samples as rows)
+mass_norm_log_t <- t(mass_norm_log)
+
+# Perform PCA with scaling
+mass_norm_log_pca <- prcomp(mass_norm_log_t, scale. = TRUE)
+
+# Merge PCA scores with sample metadata
+scores <- mass_norm_log_pca$x %>%
+  data.frame() %>%
+  mutate(Sample_ID = rownames(.)) %>%
+  left_join(imputed@phenoData@data, by = "Sample_ID")
+
+# PCA plot: PC1 vs PC2
+figure_1a <- ggplot(scores, aes(PC1, PC2, shape = Group, color = Group)) +
+  geom_point(size = 2) +
+  labs(
+    x = paste0("PC1 (", round(summary(mass_norm_log_pca)$importance[2,1]*100, 2), " %)"),
+    y = paste0("PC2 (", round(summary(mass_norm_log_pca)$importance[2,2]*100, 2), " %)")
+  ) +
+  theme_classic() +
+  theme(
+    legend.position = c(0.89, 0.79),
+    legend.background = element_rect(fill = "white", color = "black"),
+    panel.grid = element_blank(),
+    panel.border = element_rect(fill = "transparent")
+  ) +
+  geom_vline(xintercept = 0, linetype = "longdash", color = "gray") +
+  geom_hline(yintercept = 0, linetype = "longdash", color = "gray")
+
+# Display plot
+figure_1a
+
 # Create metaboset for mass-normalized data
 modes_mass_norm_log <- construct_metabosets(
   exprs = mass_norm_log,
@@ -190,6 +257,39 @@ ggplot(comparison_df, aes(x = Test, y = Count, fill = Result)) +
 
 # Normalize internal standard-normalized data by mass
 is_mass_norm_log <- sweep(is_norm_log, 2, masses, "/")
+
+#PCA plot of the combined normalized data
+# Transpose feature matrix for PCA (samples as rows)
+is_mass_norm_log_t <- t(is_mass_norm_log)
+
+# Perform PCA with scaling
+is_mass_norm_log_pca <- prcomp(is_mass_norm_log_t, scale. = TRUE)
+
+# Merge PCA scores with sample metadata
+scores <- is_mass_norm_log_pca$x %>%
+  data.frame() %>%
+  mutate(Sample_ID = rownames(.)) %>%
+  left_join(imputed@phenoData@data, by = "Sample_ID")
+
+# PCA plot: PC1 vs PC2
+figure_1a <- ggplot(scores, aes(PC1, PC2, shape = Group, color = Group)) +
+  geom_point(size = 2) +
+  labs(
+    x = paste0("PC1 (", round(summary(is_mass_norm_log_pca)$importance[2,1]*100, 2), " %)"),
+    y = paste0("PC2 (", round(summary(is_mass_norm_log_pca)$importance[2,2]*100, 2), " %)")
+  ) +
+  theme_classic() +
+  theme(
+    legend.position = c(0.89, 0.79),
+    legend.background = element_rect(fill = "white", color = "black"),
+    panel.grid = element_blank(),
+    panel.border = element_rect(fill = "transparent")
+  ) +
+  geom_vline(xintercept = 0, linetype = "longdash", color = "gray") +
+  geom_hline(yintercept = 0, linetype = "longdash", color = "gray")
+
+# Display plot
+figure_1a
 
 # Construct metaboset
 modes_is_mass_norm_log <- construct_metabosets(
