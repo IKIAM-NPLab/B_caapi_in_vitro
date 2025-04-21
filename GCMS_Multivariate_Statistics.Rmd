@@ -128,7 +128,6 @@ The next step...
 
 # Drift correction
 corrected <- correct_drift(mode)
-#corrected <- correct_drift(corrected)
 # Flag low quality features
 corrected <- flag_quality(corrected, condition = "RSD_r < 0.3 & D_ratio_r < 0.6")
 
@@ -232,12 +231,6 @@ Here read this paper: https://doi.org/10.1007%2Fs11306-016-1030-9
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE, results='hide'}
 
-# Impute missing values using random forest
-# To clean data
-#set.seed(615)
-#imputed <- impute_rf(compressed)
-# To all data
-#imputed <- impute_rf(imputed, all_features = TRUE)
 # Impute missing values using noise threshold
 imputed <- impute_simple(compressed, value = 100, na_limit = 0)
 
@@ -261,11 +254,10 @@ imp_pca + imp_bp
 
 ```
 
-The next step...
+The next step...internal Standard Normalization
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
 
-# Internal Standar Normalization
 # Feature table extraction
 feat_table <- exprs(imputed)
 
@@ -273,9 +265,8 @@ feat_table <- exprs(imputed)
 feat_table_is <- exprs(clustered)   #obtained before performing compression on the clusters
 caffeine_vector <- feat_table_is["Rtx5_EI_194_052603269692a25_099312", ]
 
-
 # Internal standard normalization
-is_norm <- sweep(feat_table, 2, caffeine_vector , "/")
+is_norm <- sweep(feat_table, 2, caffeine_vector, "/")
 
 ```
 
@@ -288,28 +279,27 @@ library(ggplot2)
 library(dplyr)
 
 # Eliminar el estándar interno antes de PCA
-is_norm_noIS <- is_norm[rownames(is_norm) != "Rtx5_EI_194_052603269692a25_099312", ]
+#is_norm_noIS <- is_norm[rownames(is_norm) != "Rtx5_EI_194_052603269692a25_099312", ]
 
 # Transponer para PCA 
-is_norm_t <- t(is_norm_noIS)
+is_norm_t <- t(is_norm)
 
 # Realizar PCA
-ei_pca <- prcomp(is_norm_t, scale. = TRUE)
+is_norm_pca <- prcomp(is_norm_t, scale. = TRUE)
 
 # Crear tabla de scores con los metadatos
-scores <- ei_pca$x %>%
+scores <- is_norm_pca$x %>%
   data.frame() %>%
   mutate(Sample_ID = rownames(.)) %>%
   left_join(imputed@phenoData@data, by = "Sample_ID")
 
 # Graficar PCA
 figure_1a <- ggplot(scores, aes(PC1, PC2, shape = Group, color = Group)) +
-  geom_point(size = 1, stroke = 1, shape = 4, fill = "white") +
+  #geom_point(size = 1, stroke = 1, shape = 4, fill = "white") +
   geom_point(size = 2) +
-  guides(x = guide_axis(title = paste0("PC1 (", round(summary(ei_pca)$importance[2,1]*100, 2), " %)")),
-         y = guide_axis(title = paste0("PC2 (", round(summary(ei_pca)$importance[2,2]*100, 2), " %)"))) +
+  guides(x = guide_axis(title = paste0("PC1 (", round(summary(is_norm_pca)$importance[2,1]*100, 2), " %)")),
+         y = guide_axis(title = paste0("PC2 (", round(summary(is_norm_pca)$importance[2,2]*100, 2), " %)"))) +
   theme_classic() +
-  theme(legend.text = element_text(face = "italic")) +
   theme(legend.position = c(0.890, 0.790),
         legend.background = element_rect(fill = "white", color = "black")) +
   theme(panel.grid = element_blank(),
@@ -321,48 +311,28 @@ figure_1a <- ggplot(scores, aes(PC1, PC2, shape = Group, color = Group)) +
 figure_1a
 
 ```
-
-The next step...
+Homocestaticity and normality test
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
 
-modes_is <- construct_metabosets(
+modes_is_norm <- construct_metabosets(
   exprs = is_norm,
   pheno_data = imputed@phenoData@data,      
   feature_data = imputed@featureData@data,         
   group_col = "Group"                    
 )
 
-mode_is <- modes_is$Rtx5_EI
+mode_is_norm <- modes_is_norm$Rtx5_EI
 
-# Probabilistic quotient normalization
-is_pqn_set <- pqn_normalization(mode_is,
-                             ref = c("qc"),
-                             method = c("median", "mean"),
-                             all_features = FALSE)
+
+homoscedasticity_test_is <- perform_homoscedasticity_tests(
+  mode_is_norm,formula_char = "Feature~ Group")
 
 ```
 
-We can inspect PCA plot after...
+Mass normalization
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
-
-# Boxplot
-is_pqn_bp <- plot_sample_boxplots(is_pqn_set,
-                               order_by = "QC",
-                               fill_by = "QC")
-# PCA
-is_pqn_pca <- plot_pca(is_pqn_set,
-                    center = TRUE,
-                    shape = "Group",
-                    color = "Group")
-# Plot
-is_pqn_pca + is_pqn_bp
-
-```
-```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
-
-# Mass normalization
 
 # Feature table extraction
 feat_table <- exprs(imputed)
@@ -412,6 +382,27 @@ figure_1a <- ggplot(scores, aes(PC1, PC2, shape = Group, color = Group)) +
 figure_1a
 
 ```
+Homocestaticity and normality test
+
+```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
+
+modes_mass_norm <- construct_metabosets(
+  exprs = mass_norm,
+  pheno_data = imputed@phenoData@data,      
+  feature_data = imputed@featureData@data,         
+  group_col = "Group"                    
+)
+
+mode_mass_norm <- modes_mass_norm$Rtx5_EI
+
+
+homoscedasticity_test_mass <- perform_homoscedasticity_tests(
+  mode_mass_norm,formula_char = "Feature~ Group")
+
+```
+
+Mass normalization and internal standard normalization
+
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
 
 # Is + Mass Normalization
@@ -455,6 +446,28 @@ figure_1a
 
 
 ```
+Homocestaticity and normality test
+
+```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
+
+modes_is_mass_norm <- construct_metabosets(
+  exprs = is_mass_norm,
+  pheno_data = imputed@phenoData@data,      
+  feature_data = imputed@featureData@data,         
+  group_col = "Group"                    
+)
+
+mode_is_mass_norm <- modes_is_mass_norm$Rtx5_EI
+
+
+homoscedasticity_test_is_mass <- perform_homoscedasticity_tests(
+  mode_is_mass_norm,formula_char = "Feature~ Group")
+
+```
+
+
+
+
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
 
 modes_is_mass <- construct_metabosets(
