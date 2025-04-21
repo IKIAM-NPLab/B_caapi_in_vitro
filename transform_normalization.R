@@ -1,3 +1,5 @@
+library(ggplot2)
+
 # ------------------------------
 # Log Transformation of Raw Data
 # ------------------------------
@@ -36,15 +38,15 @@ modes_is_norm_log <- construct_metabosets(
 # Extract specific mode
 mode_is_norm_log <- modes_is_norm_log$Rtx5_EI
 
-# Perform Levene’s test for homoscedasticity
+# Perform tests for homoscedasticity
 homoscedasticity_test_is_log <- perform_homoscedasticity_tests(
-  mode_is_norm_log, formula_char = "Feature ~ Group"
+  mode_is_norm_log, formula_char = "Feature ~ Group", all_features = TRUE
 )
 
 # Summary results
 total <- nrow(homoscedasticity_test_is_log)
-passed <- sum(homoscedasticity_test_is_log$Levene_P_FDR > 0.05)
-failed <- sum(homoscedasticity_test_is_log$Levene_P_FDR <= 0.05)
+passed <- sum(homoscedasticity_test_is_log$Bartlett_P_FDR > 0.05)
+failed <- sum(homoscedasticity_test_is_log$Bartlett_P_FDR <= 0.05)
 
 cat("Features that PASSED homoscedasticity:", passed, "\n")
 cat("Features that FAILED homoscedasticity:", failed, "\n")
@@ -70,6 +72,36 @@ cat("Features that FAILED normality:", failed, "\n")
 cat("Total features evaluated:", total, "\n")
 
 
+#plotting the results
+
+# Create summary data for both tests
+comparison_df <- data.frame(
+  Test = rep(c("Homoscedasticity", "Normality"), each = 2),
+  Result = rep(c("Passed", "Failed"), 2),
+  Count = c(
+    sum(homoscedasticity_test_is_log$Bartlett_P_FDR > 0.05),
+    sum(homoscedasticity_test_is_log$Bartlett_P_FDR <= 0.05),
+    sum(normality_is_log$Shapiro_FDR > 0.05),
+    sum(normality_is_log$Shapiro_FDR <= 0.05)
+  )
+)
+
+# Plot
+ggplot(comparison_df, aes(x = Test, y = Count, fill = Result)) +
+  geom_bar(stat = "identity", position = "stack") +
+  labs(
+    title = "Comparison of Homoscedasticity and Normality Tests",
+    x = "Statistical Test",
+    y = "Number of Features"
+  ) +
+  scale_fill_manual(values = c("Passed" = "#4CAF50", "Failed" = "#F44336")) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0.5),
+    legend.title = element_blank()
+  )
+
+
 # ------------------------------
 # Mass Normalization
 # ------------------------------
@@ -93,13 +125,13 @@ mode_mass_norm_log <- modes_mass_norm_log$Rtx5_EI
 
 # Homoscedasticity test
 homoscedasticity_test_mass_norm_log <- perform_homoscedasticity_tests(
-  mode_mass_norm_log, formula_char = "Feature ~ Group"
+  mode_mass_norm_log, formula_char = "Feature ~ Group", all_features = TRUE
 )
 
 # Summary
 total <- nrow(homoscedasticity_test_mass_norm_log)
-passed <- sum(homoscedasticity_test_mass_norm_log$Levene_P_FDR > 0.05)
-failed <- sum(homoscedasticity_test_mass_norm_log$Levene_P_FDR <= 0.05)
+passed <- sum(homoscedasticity_test_mass_norm_log$Bartlett_P_FDR > 0.05)
+failed <- sum(homoscedasticity_test_mass_norm_log$Bartlett_P_FDR <= 0.05)
 
 cat("Features that PASSED homoscedasticity:", passed, "\n")
 cat("Features that FAILED homoscedasticity:", failed, "\n")
@@ -124,7 +156,33 @@ cat("Features that PASSED normality:", passed, "\n")
 cat("Features that FAILED normality:", failed, "\n")
 cat("Total features evaluated:", total, "\n")
 
+#plotting the results
+# Create summary data for both tests
+comparison_df <- data.frame(
+  Test = rep(c("Homoscedasticity", "Normality"), each = 2),
+  Result = rep(c("Passed", "Failed"), 2),
+  Count = c(
+    sum(homoscedasticity_test_mass_norm_log$Bartlett_P_FDR > 0.05),
+    sum(homoscedasticity_test_mass_norm_log$Bartlett_P_FDR <= 0.05),
+    sum(normality_mass_norm_log$Shapiro_FDR > 0.05),
+    sum(normality_mass_norm_log$Shapiro_FDR <= 0.05)
+  )
+)
 
+# Plot
+ggplot(comparison_df, aes(x = Test, y = Count, fill = Result)) +
+  geom_bar(stat = "identity", position = "stack") +
+  labs(
+    title = "Comparison of Homoscedasticity and Normality Tests",
+    x = "Statistical Test",
+    y = "Number of Features"
+  ) +
+  scale_fill_manual(values = c("Passed" = "#4CAF50", "Failed" = "#F44336")) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0.5),
+    legend.title = element_blank()
+  )
 
 # ------------------------------
 # Combined Normalization (IS + Mass)
@@ -145,13 +203,13 @@ mode_is_mass_norm_log <- modes_is_mass_norm_log$Rtx5_EI
 
 # Homoscedasticity test
 homoscedasticity_test_is_mass_log <- perform_homoscedasticity_tests(
-  mode_is_mass_norm_log, formula_char = "Feature ~ Group"
+  mode_is_mass_norm_log, formula_char = "Feature ~ Group", all_features = TRUE
 )
 
 # Summary
 total <- nrow(homoscedasticity_test_is_mass_log)
-passed <- sum(homoscedasticity_test_is_mass_log$Levene_P_FDR > 0.05)
-failed <- sum(homoscedasticity_test_is_mass_log$Levene_P_FDR <= 0.05)
+passed <- sum(homoscedasticity_test_is_mass_log$Bartlett_P_FDR > 0.05)
+failed <- sum(homoscedasticity_test_is_mass_log$Bartlett_P_FDR <= 0.05)
 
 cat("Features that PASSED homoscedasticity:", passed, "\n")
 cat("Features that FAILED homoscedasticity:", failed, "\n")
@@ -176,3 +234,30 @@ cat("Features that PASSED normality:", passed, "\n")
 cat("Features that FAILED normality:", failed, "\n")
 cat("Total features evaluated:", total, "\n")
 
+#plotting the results
+# Create summary data for both tests
+comparison_df <- data.frame(
+  Test = rep(c("Homoscedasticity", "Normality"), each = 2),
+  Result = rep(c("Passed", "Failed"), 2),
+  Count = c(
+    sum(homoscedasticity_test_is_mass_log$Bartlett_P_FDR > 0.05),
+    sum(homoscedasticity_test_is_mass_log$Bartlett_P_FDR <= 0.05),
+    sum(normality_is_mass_norm$Shapiro_FDR > 0.05),
+    sum(normality_is_mass_norm$Shapiro_FDR <= 0.05)
+  )
+)
+
+# Plot
+ggplot(comparison_df, aes(x = Test, y = Count, fill = Result)) +
+  geom_bar(stat = "identity", position = "stack") +
+  labs(
+    title = "Comparison of Homoscedasticity and Normality Tests",
+    x = "Statistical Test",
+    y = "Number of Features"
+  ) +
+  scale_fill_manual(values = c("Passed" = "#4CAF50", "Failed" = "#F44336")) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0.5),
+    legend.title = element_blank()
+  )
