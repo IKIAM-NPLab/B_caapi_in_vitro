@@ -112,7 +112,6 @@ bp_raw + pca_raw
 
 ```
 
-
 Then...
 
 ```{r echo=TRUE, error=FALSE, message=TRUE, warning=TRUE}
@@ -150,6 +149,7 @@ corr_pca <- plot_pca(corrected,
 corr_pca + corr_bp
 
 ```
+
 Contaminant peaks based on the process blank sample will be removed.
 
 ```{r echo=TRUE, message=TRUE, warning=FALSE, error=FALSE}
@@ -183,7 +183,6 @@ no_blank_pca <- plot_pca(corrected_no_blank,
 no_blank_pca + no_blank_bp
 
 ```
-
 
 The next step...
 
@@ -227,7 +226,7 @@ Finally the data is...
 
 ```
 
-Here read this paper: https://doi.org/10.1007%2Fs11306-016-1030-9
+Here read this paper: <https://doi.org/10.1007%2Fs11306-016-1030-9>
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE, results='hide'}
 
@@ -308,6 +307,7 @@ figure_1a <- ggplot(scores, aes(PC1, PC2, shape = Group, color = Group)) +
 figure_1a
 
 ```
+
 Homocestaticity and normality test
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
@@ -325,6 +325,19 @@ mode_is_norm <- modes_is_norm$Rtx5_EI
 homoscedasticity_test_is <- perform_homoscedasticity_tests(
   mode_is_norm,formula_char = "Feature~ Group")
 
+```
+```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
+exprs_is_nomr <- exprs(mode_is_norm)
+
+shapiro_results_is_norm <- apply(exprs_is_nomr, 1, function(x) shapiro.test(x)$p.value)
+
+normality_is <- data.frame(
+  Feature_ID = rownames(exprs_is_nomr),
+  Shapiro_p = shapiro_results_is_norm,
+  Shapiro_FDR = p.adjust(shapiro_results_is_norm, method = "fdr")
+)
+
+normality_is
 ```
 
 Mass normalization
@@ -381,6 +394,7 @@ figure_1a <- ggplot(scores, aes(PC1, PC2, shape = Group, color = Group)) +
 figure_1a
 
 ```
+
 Homocestaticity and normality test
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
@@ -398,6 +412,19 @@ mode_mass_norm <- modes_mass_norm$Rtx5_EI
 homoscedasticity_test_mass <- perform_homoscedasticity_tests(
   mode_mass_norm,formula_char = "Feature~ Group")
 
+```
+```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
+exprs_mass_norm <- exprs(mode_mass_norm)
+
+shapiro_results_mass_norm <- apply(exprs_mass_norm, 1, function(x) shapiro.test(x)$p.value)
+
+normality_mass <- data.frame(
+  Feature_ID = rownames(exprs_mass_norm),
+  Shapiro_p = shapiro_results_mass_norm,
+  Shapiro_FDR = p.adjust(shapiro_results_mass_norm, method = "fdr")
+)
+
+normality_mass
 ```
 
 Mass normalization and internal standard normalization
@@ -445,6 +472,7 @@ figure_1a
 
 
 ```
+
 Homocestaticity and normality test
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
@@ -462,44 +490,22 @@ mode_is_mass_norm <- modes_is_mass_norm$Rtx5_EI
 homoscedasticity_test_is_mass <- perform_homoscedasticity_tests(
   mode_is_mass_norm,formula_char = "Feature~ Group")
 
+homoscedasticity_test_is_mass
+
 ```
 
-
-
-
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
+exprs_is_mass_norm <- exprs(mode_is_mass_norm)
 
-modes_is_mass <- construct_metabosets(
-  exprs = is_mass_norm,
-  pheno_data = imputed@phenoData@data,      
-  feature_data = imputed@featureData@data,         
-  group_col = "Group"                    
+shapiro_results_is_mass_norm <- apply(exprs_is_mass_norm, 1, function(x) shapiro.test(x)$p.value)
+
+normality_is_mass_norm <- data.frame(
+  Feature_ID = rownames(exprs_is_mass_norm),
+  Shapiro_p = shapiro_results_is_mass_norm,
+  Shapiro_FDR = p.adjust(shapiro_results_is_mass_norm, method = "fdr")
 )
 
-mode_is_mass <- modes_is_mass$Rtx5_EI
-
-# Probabilistic quotient normalization
-pqn_is_mass <- pqn_normalization(mode_is_mass,
-                             ref = c("qc", "all"),
-                             method = c("median", "mean"),
-                             all_features = FALSE)
-
-```
-
-```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
-
-# Boxplot
-pqn_bp_is_mass <- plot_sample_boxplots(pqn_is_mass,
-                               order_by = "QC",
-                               fill_by = "QC")
-# PCA
-pqn_pca_is_mass <- plot_pca(pqn_is_mass,
-                    center = TRUE,
-                    shape = "Group",
-                    color = "Group")
-# Plot
-pqn_pca_is_mass + pqn_bp_is_mass
-
+normality_is_mass_norm
 ```
 
 
@@ -645,7 +651,6 @@ library(classyfireR)
 
 The metabolites were classified using the ClassyFireR to add these metabolite classifications to the heatmap plot.
 
-
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE, results='hide'}
 
 # InChI key of the metabolites you want to classify
@@ -782,6 +787,3 @@ Finish a record.
 finish_log()
 
 ```
-
-
-
