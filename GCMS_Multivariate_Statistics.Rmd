@@ -278,12 +278,6 @@ We can inspect PCA plot after...
 library(ggplot2)
 library(dplyr)
 
-<<<<<<< HEAD
-# Eliminar el estándar interno antes de PCA
-#is_norm_noIS <- is_norm[rownames(is_norm) != "Rtx5_EI_194_052603269692a25_099312", ]
-
-=======
->>>>>>> 7c2d1c696d34ea655265fa1ca65e630f8d8a3224
 # Transponer para PCA 
 is_norm_t <- t(is_norm)
 
@@ -337,28 +331,8 @@ Mass normalization
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
 
-<<<<<<< HEAD
-=======
-# Boxplot
-is_pqn_bp <- plot_sample_boxplots(is_pqn_set,
-                               order_by = "QC",
-                               fill_by = "QC")
-# PCA
-is_pqn_pca <- plot_pca(is_pqn_set,
-                    center = TRUE,
-                    shape = "Group",
-                    color = "Group")
-# Plot
-is_pqn_pca + is_pqn_bp
-
-```
-
-
-```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
-
 # Mass normalization
 
->>>>>>> 7c2d1c696d34ea655265fa1ca65e630f8d8a3224
 # Feature table extraction
 feat_table <- exprs(imputed)
 
