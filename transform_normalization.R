@@ -7,18 +7,15 @@ library(ggplot2)
 # Extract the feature table from the imputed dataset
 feat_table <- exprs(imputed)
 
-# Apply log1p transformation to improve feature distribution
-feat_table_log <- log1p(feat_table)
+# Apply log10 transformation to improve feature distribution
+feat_table_log <- log10(feat_table)
 
 # ------------------------------
 # Internal Standard Normalization
 # ------------------------------
 
-# Extract feature data from clustered object (prior to clustering compression)
-feat_table_is <- exprs(clustered)
-
-# Retrieve internal standard (e.g., caffeine) as a reference vector
-caffeine_vector <- feat_table_is["Rtx5_EI_194_052603269692a25_099312", ]
+# Extract internal standard (e.g., caffeine) from clustered data
+caffeine_vector <- exprs(clustered)["Rtx5_EI_194_052603269692a25_099312", ]
 
 # Normalize log-transformed data by internal standard
 is_norm_log <- sweep(feat_table_log, 2, caffeine_vector, "/")
@@ -79,8 +76,8 @@ homoscedasticity_test_is_log <- perform_homoscedasticity_tests(
 
 # Summary results
 total <- nrow(homoscedasticity_test_is_log)
-passed <- sum(homoscedasticity_test_is_log$Bartlett_P_FDR > 0.05)
-failed <- sum(homoscedasticity_test_is_log$Bartlett_P_FDR <= 0.05)
+passed <- sum(homoscedasticity_test_is_log$Fligner_P_FDR > 0.05)
+failed <- sum(homoscedasticity_test_is_log$Fligner_P_FDR <= 0.05)
 
 cat("Features that PASSED homoscedasticity:", passed, "\n")
 cat("Features that FAILED homoscedasticity:", failed, "\n")
@@ -113,8 +110,8 @@ comparison_df <- data.frame(
   Test = rep(c("Homoscedasticity", "Normality"), each = 2),
   Result = rep(c("Passed", "Failed"), 2),
   Count = c(
-    sum(homoscedasticity_test_is_log$Bartlett_P_FDR > 0.05),
-    sum(homoscedasticity_test_is_log$Bartlett_P_FDR <= 0.05),
+    sum(homoscedasticity_test_is_log$Fligner_P_FDR > 0.05),
+    sum(homoscedasticity_test_is_log$Fligner_P_FDR <= 0.05),
     sum(normality_is_log$Shapiro_FDR > 0.05),
     sum(normality_is_log$Shapiro_FDR <= 0.05)
   )
@@ -197,8 +194,8 @@ homoscedasticity_test_mass_norm_log <- perform_homoscedasticity_tests(
 
 # Summary
 total <- nrow(homoscedasticity_test_mass_norm_log)
-passed <- sum(homoscedasticity_test_mass_norm_log$Bartlett_P_FDR > 0.05)
-failed <- sum(homoscedasticity_test_mass_norm_log$Bartlett_P_FDR <= 0.05)
+passed <- sum(homoscedasticity_test_mass_norm_log$Fligner_P_FDR > 0.05)
+failed <- sum(homoscedasticity_test_mass_norm_log$Fligner_P_FDR <= 0.05)
 
 cat("Features that PASSED homoscedasticity:", passed, "\n")
 cat("Features that FAILED homoscedasticity:", failed, "\n")
@@ -229,8 +226,8 @@ comparison_df <- data.frame(
   Test = rep(c("Homoscedasticity", "Normality"), each = 2),
   Result = rep(c("Passed", "Failed"), 2),
   Count = c(
-    sum(homoscedasticity_test_mass_norm_log$Bartlett_P_FDR > 0.05),
-    sum(homoscedasticity_test_mass_norm_log$Bartlett_P_FDR <= 0.05),
+    sum(homoscedasticity_test_mass_norm_log$Fligner_P_FDR > 0.05),
+    sum(homoscedasticity_test_mass_norm_log$Fligner_P_FDR <= 0.05),
     sum(normality_mass_norm_log$Shapiro_FDR > 0.05),
     sum(normality_mass_norm_log$Shapiro_FDR <= 0.05)
   )
@@ -308,8 +305,8 @@ homoscedasticity_test_is_mass_log <- perform_homoscedasticity_tests(
 
 # Summary
 total <- nrow(homoscedasticity_test_is_mass_log)
-passed <- sum(homoscedasticity_test_is_mass_log$Bartlett_P_FDR > 0.05)
-failed <- sum(homoscedasticity_test_is_mass_log$Bartlett_P_FDR <= 0.05)
+passed <- sum(homoscedasticity_test_is_mass_log$Fligner_P_FDR > 0.05)
+failed <- sum(homoscedasticity_test_is_mass_log$Fligner_P_FDR <= 0.05)
 
 cat("Features that PASSED homoscedasticity:", passed, "\n")
 cat("Features that FAILED homoscedasticity:", failed, "\n")
@@ -340,8 +337,8 @@ comparison_df <- data.frame(
   Test = rep(c("Homoscedasticity", "Normality"), each = 2),
   Result = rep(c("Passed", "Failed"), 2),
   Count = c(
-    sum(homoscedasticity_test_is_mass_log$Bartlett_P_FDR > 0.05),
-    sum(homoscedasticity_test_is_mass_log$Bartlett_P_FDR <= 0.05),
+    sum(homoscedasticity_test_is_mass_log$Fligner_P_FDR > 0.05),
+    sum(homoscedasticity_test_is_mass_log$Fligner_P_FDR <= 0.05),
     sum(normality_is_mass_norm$Shapiro_FDR > 0.05),
     sum(normality_is_mass_norm$Shapiro_FDR <= 0.05)
   )
@@ -361,3 +358,4 @@ ggplot(comparison_df, aes(x = Test, y = Count, fill = Result)) +
     plot.title = element_text(face = "bold", hjust = 0.5),
     legend.title = element_blank()
   )
+
