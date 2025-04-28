@@ -1164,13 +1164,13 @@ all_legends <- packLegend(lgd1, lgd2, lgd3, direction = "horizontal")
 gg_legend <- grid.grabExpr(draw(all_legends))
 gg_legend_fn <- ggpubr::as_ggplot(gg_legend)
 # Heatmap plot
-gcms_hm <- plot_grid(gg_legend_fn,
+gcms_bc <- plot_grid(gg_legend_fn,
                      gg_heatmap, ncol = 1,
                      rel_heights = c(0.055, 0.880))
 gcms_hm
 # Save heatmap plot
-#ggsave(filename = "Result/GCMS/GCMS_Heatmap_to_DQ3.pdf", plot = gcms_hm,
-#       width = 8, height = 9, units = "in", dpi = 300, scale = 1.7)
+ggsave(filename = "Result/GCMS/GCMS_BC_Heatmap.pdf", plot = gcms_bc,
+       width = 9, height = 10, units = "in", dpi = 300, scale = 1.7)
 
 ```
 
