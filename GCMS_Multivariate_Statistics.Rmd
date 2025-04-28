@@ -192,7 +192,7 @@ clustered <- cluster_features(corrected_no_blank,
                               rt_window = 1/60,
                               corr_thresh = 0.95,
                               d_thresh = 0.85,
-                              plotting = FALSE,
+                              plotting = TRUE,
                               prefix = paste0(ppath, "Result/Cluster/")
                               )
 
@@ -1167,7 +1167,7 @@ gg_legend_fn <- ggpubr::as_ggplot(gg_legend)
 gcms_bc <- plot_grid(gg_legend_fn,
                      gg_heatmap, ncol = 1,
                      rel_heights = c(0.055, 0.880))
-gcms_hm
+gcms_bc
 # Save heatmap plot
 ggsave(filename = "Result/GCMS/GCMS_BC_Heatmap.pdf", plot = gcms_bc,
        width = 9, height = 10, units = "in", dpi = 300, scale = 1.7)
