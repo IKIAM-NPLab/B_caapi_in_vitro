@@ -344,10 +344,7 @@ cat("Features that PASSED homoscedasticity:", passed, "\n")
 cat("Features that FAILED homoscedasticity:", failed, "\n")
 cat("Total features evaluated:", total, "\n")
 
-
-
-```
-```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
+#normality test
 
 # Extract expression matrix from the metaboset object
 exprs_is_norm <- exprs(mode_is_norm)
@@ -633,7 +630,8 @@ bp_mass_norm_t <- plot_sample_boxplots(glog_set_mass_t,
 pca_mass_norm_t <- plot_pca(glog_set_mass_t,
                       center = TRUE,
                       shape = "Group",
-                      color = "Group",)
+                      color = "Group",
+                      scale = "none")
 # Plot
 pca_mass_norm_t 
 #+ bp_mass_norm_t
@@ -837,7 +835,8 @@ bp_is_mass_norm_t <- plot_sample_boxplots(glog_set_is_mass_t,
 pca_is_mass_norm_t <- plot_pca(glog_set_is_mass_t,
                       center = TRUE,
                       shape = "Group",
-                      color = "Group",)
+                      color = "Group",
+                      scale = "none")
 # Plot
 pca_is_mass_norm_t 
 #+ bp_is_mass_norm_t
@@ -900,11 +899,11 @@ Droping flagged features...
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE, results='hide'}
 
 # Extract clean data
-pqn_noflag <- drop_flagged(pqn_set)
+trans_mass_norm_noflag <- drop_flagged(glog_set_mass_t)
 # Extracting feature height table
-peak_height <- exprs(pqn_noflag)
+peak_height <- exprs(trans_mass_norm_noflag)
 # Extracting Phenotipic data
-pheno_data <- pqn_noflag@phenoData@data
+pheno_data <- trans_mass_norm_noflag@phenoData@data
 
 ```
 
@@ -964,7 +963,7 @@ Creating an artificial table with Feature name and Compound column.
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE, results='hide', fig.width = 14, fig.height = 7}
 
 # Extracting feature identified
-metab_data <- pqn_noflag[!is.na(pqn_noflag@featureData@data$Metabolite),]
+metab_data <- trans_mass_norm_noflag[!is.na(trans_mass_norm_noflag@featureData@data$Metabolite),]
 # Extracting metabolite table
 meta_table <- metab_data@featureData@data
 # Creating a new small table of the annotated compounds
@@ -1009,9 +1008,9 @@ ComplexHeatmap package and dependency installation.
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE, results='hide'}
 
 # ComplexHeatmap package installation
-if (!requireNamespace("BiocManager", quietly=TRUE))
-    install.packages("BiocManager")
-BiocManager::install("ComplexHeatmap")
+#if (!requireNamespace("BiocManager", quietly=TRUE))
+#    install.packages("BiocManager")
+#BiocManager::install("ComplexHeatmap")
 library(ComplexHeatmap)
 
 # ColorRamp2 package installation
@@ -1040,7 +1039,7 @@ The metabolites were classified using the ClassyFireR to add these metabolite cl
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE, results='hide'}
 
 # InChI key of the metabolites you want to classify
-InChI_Keys <- c('2-Heptanone' = "CATSNJVOTSVZJV-UHFFFAOYSA-N")
+InChI_Keys <- c('Harmine' = "BXNJHAXVSOCGBA-UHFFFAOYSA-N")
 # Get classification
 Classification_List <- purrr::map(InChI_Keys, get_classification)
 Classification_List
@@ -1052,7 +1051,7 @@ Extracting and loaded of identified metabolites abundance.
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
 
 # Drop QC
-hm_no_qc <- drop_qcs(pqn_noflag)
+hm_no_qc <- drop_qcs(trans_mass_norm_noflag)
 # Scaling by autoscaling method
 hm_scl <- scale(t(exprs(hm_no_qc)), center = TRUE, scale = TRUE)
 hm_scl <- t(hm_scl)
@@ -1078,26 +1077,33 @@ set.seed(1540)
 # Adding row and column names
 hm_scl <- hm_height
 rownames(hm_scl) <- hm_fdata$Metabolite
-colnames(hm_scl) <- hm_pdata$Species
+colnames(hm_scl) <- hm_pdata$Group
 # Metabolite class color
-cols_metclass <- c("Benzenoids" = "#800000FF",
-                   "Hydrocarbons" = "#FFA319FF",
-                   "Lipids and lipid-like molecules" = "#8A9045FF",
-                   "Organic oxygen compounds" = "#8DD3C7",
-                   "Organohalogen compounds" = "#BEBADA",
-                   "Organoheterocyclic compounds" = "#FFFFB3")
+cols_metclass <- c("Harmala alkaloids" = "#b2abd2",
+                   "Pyridines and derivatives" = "#fc8d62",
+                   "Organic acids and derivatives" = "#66c2a5",
+                   "Organoheterocyclic compounds" = "#4da0cb",
+                   "Hydrocarbons" = "#8da0cb",
+                   "Organohalogen compounds" = "#e78ac3",
+                   "Lipids and lipid-like molecules" = "#ffd92f",
+                   "Alkaloids and derivatives" = "#e41a1c",
+                   "Organic oxygen compounds" = "#d95f02",
+                   "Benzenoids" = "#ffff33",
+                   "Organic nitrogen compounds" = "#f46d43")
 # Add row anotation to HeatMap
 hm_row_ann <- rowAnnotation(`Class` = hm_fdata$classyfireR_Superclass,
                             col = list(`Class` = cols_metclass),
                             show_annotation_name = T,
                             show_legend = F)
 # Species color
-cols_species <- c("T. angustula" = "#E76BF3",
-                  "M. fasciculata" = "#e6550d",
-                  "M. fuscopilosa" = "#91cf60")
+cols_species <- c("developing_meristem" = "#E76BF3",
+                  "undeveloped_explant" = "#e6550d",
+                  "undeveloped_meristem" = "#91cf60",
+                  "leaf" = "#3182bd",
+                  "Callus" = "#fdae61")
 # Add top anotation to HeatMap
-top_info_ann <- HeatmapAnnotation(`Species` = hm_pdata$Species,
-                                  col = list(`Species` = cols_species),
+top_info_ann <- HeatmapAnnotation(`Group` = hm_pdata$Group,
+                                  col = list(`Group` = cols_species),
                                   show_annotation_name = T,
                                   show_legend = F,
                                   border = T)
@@ -1131,11 +1137,13 @@ lgd1 <- Legend(col_fun = mycol,
                direction = "horizontal" )
 
 # Bees species legend
-lgd2 <- Legend(labels = gt_render(c("*T. angustula*",
-                                    "*M. fasciculata*",
-                                    "*M. fuscopilosa*")),
+lgd2 <- Legend(labels = gt_render(c("*developing_meristem*",
+                                    "*undeveloped_explant*",
+                                    "*undeveloped_meristem*",
+                                    "*leaf*",
+                                    "*Callus*")),
                legend_gp = gpar(fill = cols_species),
-               title = "Bees species", ncol = 1)
+               title = "Explant type", ncol = 1)
 # Metabolite class Legend
 lgd3 <- Legend(labels = c(unique(hm_fdata$classyfireR_Superclass)) ,
                legend_gp = gpar(fill = cols_metclass), 
