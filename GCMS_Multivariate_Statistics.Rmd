@@ -192,7 +192,7 @@ clustered <- cluster_features(corrected_no_blank,
                               rt_window = 1/60,
                               corr_thresh = 0.95,
                               d_thresh = 0.85,
-                              plotting = F,
+                              plotting = TRUE,
                               prefix = paste0(ppath, "Result/Cluster/")
                               )
 
@@ -222,7 +222,7 @@ Finally the data is...
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
 
-#save(compressed, file = paste0(ppath, "Result/Notame_GC-MS_out.RData"))
+save(compressed, file = paste0(ppath, "Result/Notame_GC-MS_out.RData"))
 
 ```
 
