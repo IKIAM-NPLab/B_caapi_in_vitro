@@ -192,7 +192,7 @@ clustered <- cluster_features(corrected_no_blank,
                               rt_window = 1/60,
                               corr_thresh = 0.95,
                               d_thresh = 0.85,
-                              plotting = TRUE,
+                              plotting = F,
                               prefix = paste0(ppath, "Result/Cluster/")
                               )
 
@@ -929,12 +929,20 @@ scores <- ei_pca$x %>%                   # Get PC coordinates
   data.frame %>%                         # Convert to data frames
   mutate(Sample_ID = rownames(.)) %>%    # Create a new column with the sample names
   left_join(pheno_data )                 # Adding metadata
+# Calcular el porcentaje de varianza explicada
+pc1_var <- round((ei_pca$sdev[1]^2 / sum(ei_pca$sdev^2)) * 100, 2)
+pc2_var <- round((ei_pca$sdev[2]^2 / sum(ei_pca$sdev^2)) * 100, 2)
+
+# Imprimir los valores para verlos directamente
+cat("PC1 varianza explicada:", pc1_var, "%\n")
+cat("PC2 varianza explicada:", pc2_var, "%\n")
+
 # PCA plot
 figure_1a <- ggplot(scores,
        aes(PC1, PC2, shape = Group, color = Group)) +
   geom_point(size = 3) +
-  guides(x=guide_axis(title = "PC1 (20.05 %)"),
-         y=guide_axis(title = "PC2 (17.78 %)")) +
+  guides(x=guide_axis(title = "PC1 (45.89 %)"),
+         y=guide_axis(title = "PC2 (16.61 %)")) +
   theme_classic() +
   theme(legend.text = element_text(face="italic")) +
   theme(legend.position = c(0.890, 0.790),
@@ -945,7 +953,7 @@ figure_1a <- ggplot(scores,
   geom_hline(yintercept = 0, linetype = "longdash", colour="gray")
 figure_1a
 # Save plot
-#ggsave('Result/notame_Result/HS_GCMS/figure_1a.pdf', width = 7, height = 4, device='pdf', dpi="print")
+ggsave('Result/notame_Result/BC_GCMS/figure_1a.pdf', width = 7, height = 4, device='pdf', dpi="print")
 
 ```
 
@@ -986,8 +994,8 @@ figure_1c <- ggplot(loadings, aes(PC1, PC2)) +
                             cex = 2.5,
                             max.overlaps = 50,
                             min.segment.length = 0) +
-  guides(x=guide_axis(title = "PC1 (20.05 %)"),
-         y=guide_axis(title = "PC2 (17.78 %)")) +
+  guides(x=guide_axis(title = "PC1 (45.89 %)"),
+         y=guide_axis(title = "PC2 (16.61 %)")) +
   theme(legend.position = c(0.945, 0.925),
         legend.background = element_rect(fill = "white", color = "black")) +
   theme(panel.grid = element_blank(), 
@@ -997,7 +1005,7 @@ figure_1c <- ggplot(loadings, aes(PC1, PC2)) +
   ggsci::scale_color_aaas()
 figure_1c
 # Save plot
-#ggsave('Result/notame_Result/HS_GCMS/figure_1c.pdf', width = 14, height = 7, device='pdf', dpi="print")
+ggsave('Result/notame_Result/BC_GCMS/figure_1c.pdf', width = 14, height = 7, device='pdf', dpi="print")
 
 ```
 
@@ -1096,10 +1104,10 @@ hm_row_ann <- rowAnnotation(`Class` = hm_fdata$classyfireR_Superclass,
                             show_annotation_name = T,
                             show_legend = F)
 # Species color
-cols_species <- c("developing_meristem" = "#E76BF3",
-                  "undeveloped_explant" = "#e6550d",
-                  "undeveloped_meristem" = "#91cf60",
-                  "leaf" = "#3182bd",
+cols_species <- c("organogenic_meristem" = "#E76BF3",
+                  "stem_explant" = "#e6550d",
+                  "non-organogenic_meristems" = "#91cf60",
+                  "leaf_explant" = "#3182bd",
                   "Callus" = "#fdae61")
 # Add top anotation to HeatMap
 top_info_ann <- HeatmapAnnotation(`Group` = hm_pdata$Group,
@@ -1107,8 +1115,15 @@ top_info_ann <- HeatmapAnnotation(`Group` = hm_pdata$Group,
                                   show_annotation_name = T,
                                   show_legend = F,
                                   border = T)
+# Verificar el rango de valores en la matriz
+min_val <- min(hm_scl, na.rm = TRUE)  # Valor mínimo
+max_val <- max(hm_scl, na.rm = TRUE)  # Valor máximo
+
+# Imprimir el rango
+cat("Rango de valores en el heatmap: [", min_val, ",", max_val, "]\n")
+
 # Color scale
-mycol <- colorRamp2(c(-4, 0, 4),
+mycol <- colorRamp2(c(-5, 0, 5),
                     c("blue", "white", "red"))
 # Heatmap matrix plotting
 hm_plot <- Heatmap(hm_scl,
