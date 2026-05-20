@@ -217,7 +217,7 @@ clustered <- cluster_features(corrected_no_blank,
 #)
 
 
-compressed <- compress_clusters(clustered[["as_bb"]])
+compressed <- compress_clusters(clustered)
 
 
 ```
@@ -244,7 +244,7 @@ Finally the data is...
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
 
-save(compressed, file = paste0(ppath, "Result/Notame_GC-MS_out.RData"))
+save(compressed, file = paste0(ppath, "Result/Notame_LC-MS_out.RData"))
 
 ```
 
@@ -280,13 +280,13 @@ The next step...internal Standard Normalization
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
 
 # Extract feature matrix from imputed data
-feat_table <- exprs(imputed)
+#feat_table <- exprs(imputed)
 
 # Extract internal standard (e.g., caffeine) from clustered data
-caffeine_vector <- exprs(clustered)["Rtx5_EI_194_052603269692a25_099312", ]
+#caffeine_vector <- exprs(clustered)["Rtx5_EI_194_052603269692a25_099312", ]
 
 # Normalize features by internal standard (column-wise)
-is_norm <- sweep(feat_table, 2, caffeine_vector, "/")
+#is_norm <- sweep(feat_table, 2, caffeine_vector, "/")
 
 
 ```
@@ -296,40 +296,40 @@ We can inspect PCA plot after...
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE, results='hide', fig.width = 7, fig.height = 4}
 
 # Required libraries
-library(ggplot2)
-library(dplyr)
+#library(ggplot2)
+#library(dplyr)
 
 # Transpose feature matrix for PCA (samples as rows)
-is_norm_t <- t(is_norm)
+#is_norm_t <- t(is_norm)
 
 # Perform PCA with scaling
-is_norm_pca <- prcomp(is_norm_t, scale. = TRUE)
+#is_norm_pca <- prcomp(is_norm_t, scale. = TRUE)
 
 # Merge PCA scores with sample metadata
-scores <- is_norm_pca$x %>%
-  data.frame() %>%
-  mutate(Sample_ID = rownames(.)) %>%
-  left_join(imputed@phenoData@data, by = "Sample_ID")
+#scores <- is_norm_pca$x %>%
+#  data.frame() %>%
+#  mutate(Sample_ID = rownames(.)) %>%
+#  left_join(imputed@phenoData@data, by = "Sample_ID")
 
 # PCA plot: PC1 vs PC2
-figure_1a <- ggplot(scores, aes(PC1, PC2, shape = Group, color = Group)) +
-  geom_point(size = 2) +
-  labs(
-    x = paste0("PC1 (", round(summary(is_norm_pca)$importance[2,1]*100, 2), " %)"),
-    y = paste0("PC2 (", round(summary(is_norm_pca)$importance[2,2]*100, 2), " %)")
-  ) +
-  theme_classic() +
-  theme(
-    legend.position = c(0.89, 0.79),
-    legend.background = element_rect(fill = "white", color = "black"),
-    panel.grid = element_blank(),
-    panel.border = element_rect(fill = "transparent")
-  ) +
-  geom_vline(xintercept = 0, linetype = "longdash", color = "gray") +
-  geom_hline(yintercept = 0, linetype = "longdash", color = "gray")
+#figure_1a <- ggplot(scores, aes(PC1, PC2, shape = Group, color = Group)) +
+#  geom_point(size = 2) +
+#  labs(
+#    x = paste0("PC1 (", round(summary(is_norm_pca)$importance[2,1]*100, 2), " %)"),
+ #   y = paste0("PC2 (", round(summary(is_norm_pca)$importance[2,2]*100, 2), " %)")
+  #) +
+  #theme_classic() +
+  #theme(
+   # legend.position = c(0.89, 0.79),
+    #legend.background = element_rect(fill = "white", color = "black"),
+    #panel.grid = element_blank(),
+    #panel.border = element_rect(fill = "transparent")
+#  ) +
+ # geom_vline(xintercept = 0, linetype = "longdash", color = "gray") +
+  #geom_hline(yintercept = 0, linetype = "longdash", color = "gray")
 
 # Display plot
-figure_1a
+#figure_1a
 
 
 ```
@@ -339,57 +339,57 @@ Homocestaticity and normality test
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
 
 # Build metaboset from internal standard-normalized data
-modes_is_norm <- construct_metabosets(
-  exprs = is_norm,
-  pheno_data = imputed@phenoData@data,
-  feature_data = imputed@featureData@data,
-  group_col = "Group"
-)
+#modes_is_norm <- construct_metabosets(
+#  exprs = is_norm,
+ # pheno_data = imputed@phenoData@data,
+  #feature_data = imputed@featureData@data,
+  #group_col = "Group"
+#)
 
 # Select specific mode (e.g., GC-MS method)
-mode_is_norm <- modes_is_norm$Rtx5_EI
+#mode_is_norm <- modes_is_norm$Rtx5_EI
 
 # Perform tests for homoscedasticity
-homoscedasticity_test_is <- perform_homoscedasticity_tests(
-  mode_is_norm,
-  formula_char = "Feature ~ Group",
-  all_features = TRUE
-)
+#homoscedasticity_test_is <- perform_homoscedasticity_tests(
+ # mode_is_norm,
+  #formula_char = "Feature ~ Group",
+  #all_features = TRUE
+#)
 
 # Summary of results
-total <- nrow(homoscedasticity_test_is)
-passed <- sum(homoscedasticity_test_is$Fligner_P_FDR > 0.05)
-failed <- sum(homoscedasticity_test_is$Fligner_P_FDR <= 0.05)
+#total <- nrow(homoscedasticity_test_is)
+#passed <- sum(homoscedasticity_test_is$Fligner_P_FDR > 0.05)
+#failed <- sum(homoscedasticity_test_is$Fligner_P_FDR <= 0.05)
 
 # Print results
-cat("Features that PASSED homoscedasticity:", passed, "\n")
-cat("Features that FAILED homoscedasticity:", failed, "\n")
-cat("Total features evaluated:", total, "\n")
+#cat("Features that PASSED homoscedasticity:", passed, "\n")
+#cat("Features that FAILED homoscedasticity:", failed, "\n")
+#cat("Total features evaluated:", total, "\n")
 
 #normality test
 
 # Extract expression matrix from the metaboset object
-exprs_is_norm <- exprs(mode_is_norm)
+#exprs_is_norm <- exprs(mode_is_norm)
 
 # Apply Shapiro-Wilk test to each feature (row)
-shapiro_results_is_norm <- apply(exprs_is_norm, 1, function(x) shapiro.test(x)$p.value)
+#shapiro_results_is_norm <- apply(exprs_is_norm, 1, function(x) shapiro.test(x)$p.value)
 
 # Create a data frame with raw and adjusted p-values
-normality_is <- data.frame(
-  Feature_ID = rownames(exprs_is_norm),
-  Shapiro_p = shapiro_results_is_norm,
-  Shapiro_FDR = p.adjust(shapiro_results_is_norm, method = "fdr")
-)
+#normality_is <- data.frame(
+#  Feature_ID = rownames(exprs_is_norm),
+#  Shapiro_p = shapiro_results_is_norm,
+#  Shapiro_FDR = p.adjust(shapiro_results_is_norm, method = "fdr")
+#)
 
 # Summary of normality test results
-total <- nrow(normality_is)
-passed <- sum(normality_is$Shapiro_FDR > 0.05)
-failed <- sum(normality_is$Shapiro_FDR <= 0.05)
+#total <- nrow(normality_is)
+#passed <- sum(normality_is$Shapiro_FDR > 0.05)
+#failed <- sum(normality_is$Shapiro_FDR <= 0.05)
 
 # Print results
-cat("Features that PASSED normality:", passed, "\n")
-cat("Features that FAILED normality:", failed, "\n")
-cat("Total features evaluated:", total, "\n")
+#cat("Features that PASSED normality:", passed, "\n")
+#cat("Features that FAILED normality:", failed, "\n")
+#cat("Total features evaluated:", total, "\n")
 
 
 
@@ -399,20 +399,20 @@ Transformation IS Normalization
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
 
 # Metaboset from internal standard-normalized data
-modes_is_norm
+#modes_is_norm
 
 # specific mode (e.g., GC-MS method)
-mode_is_norm <- modes_is_norm$Rtx5_EI
+#mode_is_norm <- modes_is_norm$Rtx5_EI
 
 # "SummarizedExperiment" package installation
 #if (!require("BiocManager", quietly = TRUE))
-#   install.packages("BiocManager")
+ #  install.packages("BiocManager")
 #BiocManager::install("SummarizedExperiment")
 library(SummarizedExperiment)
 
 # Convert feature height table to SummarizedExperiment class
-data_is_norm_t <- SummarizedExperiment(assays = exprs(mode_is_norm),
-                             colData = mode_is_norm@phenoData@data)
+#data_is_norm_t <- SummarizedExperiment(assays = exprs(mode_is_norm),
+ #                            colData = mode_is_norm@phenoData@data)
 
 
 # Package for generalized logarithmic transform
@@ -422,13 +422,13 @@ data_is_norm_t <- SummarizedExperiment(assays = exprs(mode_is_norm),
 library(pmp)
 
 # Generalised logarithmic transform
-glog_exprs <- glog_transformation(df = data_is_norm_t@assays@data@listData[[1]],
-                                  classes = data_is_norm_t$Group,
-                                  qc_label = "QC")
+#glog_exprs <- glog_transformation(df = data_is_norm_t@assays@data@listData[[1]],
+#                                  classes = data_is_norm_t$Group,
+#                                  qc_label = "QC")
 
 # Adding glog transformation to notame MetaboSet
-glog_set_is_norm <- mode_is_norm
-exprs(glog_set_is_norm) <- glog_exprs
+#glog_set_is_norm <- mode_is_norm
+#exprs(glog_set_is_norm) <- glog_exprs
 
 ```
 We can inspect PCA plot after...
@@ -436,16 +436,16 @@ We can inspect PCA plot after...
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
 
 # Boxplot
-bp_is_norm_t <- plot_sample_boxplots(glog_set_is_norm,
-                                 order_by = "QC",
-                                 fill_by = "QC")
+#bp_is_norm_t <- plot_sample_boxplots(glog_set_is_norm,
+ #                                order_by = "QC",
+#                                 fill_by = "QC")
 # PCA
-pca_is_norm_t <- plot_pca(glog_set_is_norm,
-                      center = TRUE,
-                      shape = "Group",
-                      color = "Group",)
+#pca_is_norm_t <- plot_pca(glog_set_is_norm,
+#                      center = TRUE,
+#                      shape = "Group",
+#                      color = "Group",)
 # Plot
-pca_is_norm_t 
+#pca_is_norm_t 
 #+ bp_is_norm_t
 
 
@@ -455,46 +455,46 @@ Homocestaticity and normality test
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
 # Perform tests for homoscedasticity
-homoscedasticity_test_is_t <- perform_homoscedasticity_tests(
-  glog_set_is_norm,
-  formula_char = "Feature ~ Group",
-  all_features = TRUE
-)
+#homoscedasticity_test_is_t <- perform_homoscedasticity_tests(
+#  glog_set_is_norm,
+#  formula_char = "Feature ~ Group",
+#  all_features = TRUE
+#)
 
 # Summary of results
-total <- nrow(homoscedasticity_test_is_t)
-passed <- sum(homoscedasticity_test_is_t$Fligner_P_FDR > 0.05)
-failed <- sum(homoscedasticity_test_is_t$Fligner_P_FDR <= 0.05)
+#total <- nrow(homoscedasticity_test_is_t)
+#passed <- sum(homoscedasticity_test_is_t$Fligner_P_FDR > 0.05)
+#failed <- sum(homoscedasticity_test_is_t$Fligner_P_FDR <= 0.05)
 
 # Print results
-cat("Features that PASSED homoscedasticity:", passed, "\n")
-cat("Features that FAILED homoscedasticity:", failed, "\n")
-cat("Total features evaluated:", total, "\n")
+#cat("Features that PASSED homoscedasticity:", passed, "\n")
+#cat("Features that FAILED homoscedasticity:", failed, "\n")
+#cat("Total features evaluated:", total, "\n")
 
 #Normality test
 
 # Extract expression matrix from the metaboset object
-exprs_is_norm_trans <- exprs(glog_set_is_norm)
+#exprs_is_norm_trans <- exprs(glog_set_is_norm)
 
 # Apply Shapiro-Wilk test to each feature (row)
-shapiro_results_is_norm_trans <- apply(exprs_is_norm_trans, 1, function(x) shapiro.test(x)$p.value)
+#shapiro_results_is_norm_trans <- apply(exprs_is_norm_trans, 1, function(x) shapiro.test(x)$p.value)
 
 # Create a data frame with raw and adjusted p-values
-normality_is_t <- data.frame(
-  Feature_ID = rownames(exprs_is_norm_trans),
-  Shapiro_p = shapiro_results_is_norm_trans,
-  Shapiro_FDR = p.adjust(shapiro_results_is_norm_trans, method = "fdr")
-)
+#normality_is_t <- data.frame(
+ # Feature_ID = rownames(exprs_is_norm_trans),
+  #Shapiro_p = shapiro_results_is_norm_trans,
+ # Shapiro_FDR = p.adjust(shapiro_results_is_norm_trans, method = "fdr")
+#)
 
 # Summary of normality test results
-total <- nrow(normality_is_t)
-passed <- sum(normality_is_t$Shapiro_p > 0.05)
-failed <- sum(normality_is_t$Shapiro_p <= 0.05)
+#total <- nrow(normality_is_t)
+#passed <- sum(normality_is_t$Shapiro_p > 0.05)
+#failed <- sum(normality_is_t$Shapiro_p <= 0.05)
 
 # Print results
-cat("Features that PASSED normality:", passed, "\n")
-cat("Features that FAILED normality:", failed, "\n")
-cat("Total features evaluated:", total, "\n")
+#cat("Features that PASSED normality:", passed, "\n")
+#cat("Features that FAILED normality:", failed, "\n")
+#cat("Total features evaluated:", total, "\n")
 
 
 
@@ -518,7 +518,7 @@ mass_norm <- sweep(feat_table, 2, masses, "/")
 ```
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE, results='hide', fig.width = 7, fig.height = 4}
-
+library(dplyr)
 # Transpose feature matrix for PCA (samples as rows)
 mass_norm_t <- t(mass_norm)
 
@@ -567,7 +567,7 @@ modes_mass_norm <- construct_metabosets(
 )
 
 # Select the relevant mode (e.g., Rtx5_EI method)
-mode_mass_norm <- modes_mass_norm$Rtx5_EI
+mode_mass_norm <- modes_mass_norm$as_bb
 
 # Perform tests for homoscedasticity
 homoscedasticity_test_mass <- perform_homoscedasticity_tests(
@@ -622,7 +622,7 @@ Transformation Mass Normalization
 modes_mass_norm
 
 # specific mode (e.g., GC-MS method)
-mode_mass_norm <- modes_mass_norm$Rtx5_EI
+mode_mass_norm <- modes_mass_norm$as_bb
 
 # Convert feature height table to SummarizedExperiment class
 data_mass_t <- SummarizedExperiment(assays = exprs(mode_mass_norm),
@@ -698,9 +698,9 @@ normality_mass <- data.frame(
 )
 
 # Summary of normality test results
-total <- nrow(normality_is)
-passed <- sum(normality_is$Shapiro_FDR > 0.05)
-failed <- sum(normality_is$Shapiro_FDR <= 0.05)
+total <- nrow(normality_mass)
+passed <- sum(normality_mass$Shapiro_FDR > 0.05)
+failed <- sum(normality_mass$Shapiro_FDR <= 0.05)
 
 # Print results
 cat("Features that PASSED normality:", passed, "\n")
@@ -718,44 +718,44 @@ Mass normalization and internal standard normalization
 # ---------------------------------------------
 
 # Apply mass normalization to IS-normalized data (column-wise)
-is_mass_norm <- sweep(is_norm, 2, masses, "/")
+#is_mass_norm <- sweep(is_norm, 2, masses, "/")
 
 # ---------------------------------------------
 # PCA on IS + Mass Normalized Data
 # ---------------------------------------------
 
 # Transpose matrix: rows = samples, columns = features
-is_mass_norm_t <- t(is_mass_norm)
+#is_mass_norm_t <- t(is_mass_norm)
 
 # Perform PCA with scaling
-is_mass_norm_pca <- prcomp(is_mass_norm_t, scale. = TRUE)
+#is_mass_norm_pca <- prcomp(is_mass_norm_t, scale. = TRUE)
 
 # Merge PCA scores with sample metadata
-scores <- is_mass_norm_pca$x %>%
-  data.frame() %>%
-  mutate(Sample_ID = rownames(.)) %>%
-  left_join(imputed@phenoData@data, by = "Sample_ID")
+#scores <- is_mass_norm_pca$x %>%
+#  data.frame() %>%
+#  mutate(Sample_ID = rownames(.)) %>%
+#  left_join(imputed@phenoData@data, by = "Sample_ID")
 
 # Create PCA plot: PC1 vs PC2
-figure_1a <- ggplot(scores, aes(PC1, PC2, shape = Group, color = Group)) +
-  geom_point(size = 2) +
-  labs(
-    x = paste0("PC1 (", round(summary(is_mass_norm_pca)$importance[2,1]*100, 2), " %)"),
-    y = paste0("PC2 (", round(summary(is_mass_norm_pca)$importance[2,2]*100, 2), " %)")
-  ) +
-  theme_classic() +
-  theme(
-    legend.text = element_text(face = "italic"),
-    legend.position = c(0.89, 0.79),
-    legend.background = element_rect(fill = "white", color = "black"),
-    panel.grid = element_blank(),
-    panel.border = element_rect(fill = "transparent")
-  ) +
-  geom_vline(xintercept = 0, linetype = "longdash", color = "gray") +
-  geom_hline(yintercept = 0, linetype = "longdash", color = "gray")
+#figure_1a <- ggplot(scores, aes(PC1, PC2, shape = Group, color = Group)) +
+#  geom_point(size = 2) +
+#  labs(
+#    x = paste0("PC1 (", round(summary(is_mass_norm_pca)$importance[2,1]*100, 2), " %)"),
+#    y = paste0("PC2 (", round(summary(is_mass_norm_pca)$importance[2,2]*100, 2), " %)")
+#  ) +
+#  theme_classic() +
+#  theme(
+#    legend.text = element_text(face = "italic"),
+#    legend.position = c(0.89, 0.79),
+#    legend.background = element_rect(fill = "white", color = "black"),
+#    panel.grid = element_blank(),
+#    panel.border = element_rect(fill = "transparent")
+#  ) +
+#  geom_vline(xintercept = 0, linetype = "longdash", color = "gray") +
+#  geom_hline(yintercept = 0, linetype = "longdash", color = "gray")
 
 # Display plot
-figure_1a
+#figure_1a
 
 ```
 
@@ -764,57 +764,57 @@ Homocestaticity and normality test
 ```{r echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
 
 # Build metaboset using IS + Mass normalized data
-modes_is_mass_norm <- construct_metabosets(
-  exprs = is_mass_norm,
-  pheno_data = imputed@phenoData@data,
-  feature_data = imputed@featureData@data,
-  group_col = "Group"
-)
+#modes_is_mass_norm <- construct_metabosets(
+#  exprs = is_mass_norm,
+#  pheno_data = imputed@phenoData@data,
+#  feature_data = imputed@featureData@data,
+#  group_col = "Group"
+#)
 
 # Select the analytical mode (e.g., Rtx5_EI)
-mode_is_mass_norm <- modes_is_mass_norm$Rtx5_EI
+#mode_is_mass_norm <- modes_is_mass_norm$Rtx5_EI
 
 # Perform Levene's test for homoscedasticity
-homoscedasticity_test_is_mass <- perform_homoscedasticity_tests(
-  mode_is_mass_norm,
-  formula_char = "Feature ~ Group",
-  all_features = TRUE
-)
+#homoscedasticity_test_is_mass <- perform_homoscedasticity_tests(
+#  mode_is_mass_norm,
+#  formula_char = "Feature ~ Group",
+#  all_features = TRUE
+#)
 
 # Summarize results
-total <- nrow(homoscedasticity_test_is_mass)
-passed <- sum(homoscedasticity_test_is_mass$Fligner_P_FDR > 0.05)
-failed <- sum(homoscedasticity_test_is_mass$Fligner_P_FDR <= 0.05)
+#total <- nrow(homoscedasticity_test_is_mass)
+#passed <- sum(homoscedasticity_test_is_mass$Fligner_P_FDR > 0.05)
+#failed <- sum(homoscedasticity_test_is_mass$Fligner_P_FDR <= 0.05)
 
 # Print output
-cat("Features that PASSED homoscedasticity:", passed, "\n")
-cat("Features that FAILED homoscedasticity:", failed, "\n")
-cat("Total features evaluated:", total, "\n")
+#cat("Features that PASSED homoscedasticity:", passed, "\n")
+#cat("Features that FAILED homoscedasticity:", failed, "\n")
+#cat("Total features evaluated:", total, "\n")
 
 #Normality test
 
 # Extract expression matrix from the IS + Mass normalized metaboset
-exprs_is_mass_norm <- exprs(mode_is_mass_norm)
+#exprs_is_mass_norm <- exprs(mode_is_mass_norm)
 
 # Apply Shapiro-Wilk test to each feature (row-wise)
-shapiro_results_is_mass_norm <- apply(exprs_is_mass_norm, 1, function(x) shapiro.test(x)$p.value)
+#shapiro_results_is_mass_norm <- apply(exprs_is_mass_norm, 1, function(x) shapiro.test(x)$p.value)
 
 # Compile results into a data frame with adjusted p-values (FDR)
-normality_is_mass_norm <- data.frame(
-  Feature_ID = rownames(exprs_is_mass_norm),
-  Shapiro_p = shapiro_results_is_mass_norm,
-  Shapiro_FDR = p.adjust(shapiro_results_is_mass_norm, method = "fdr")
-)
+#normality_is_mass_norm <- data.frame(
+#  Feature_ID = rownames(exprs_is_mass_norm),
+#  Shapiro_p = shapiro_results_is_mass_norm,
+#  Shapiro_FDR = p.adjust(shapiro_results_is_mass_norm, method = "fdr")
+#)
 
 # Summarize results
-total <- nrow(normality_is_mass_norm)
-passed <- sum(normality_is_mass_norm$Shapiro_FDR > 0.05)
-failed <- sum(normality_is_mass_norm$Shapiro_FDR <= 0.05)
+#total <- nrow(normality_is_mass_norm)
+#passed <- sum(normality_is_mass_norm$Shapiro_FDR > 0.05)
+#failed <- sum(normality_is_mass_norm$Shapiro_FDR <= 0.05)
 
 # Display summary
-cat("Features that PASSED normality:", passed, "\n")
-cat("Features that FAILED normality:", failed, "\n")
-cat("Total features evaluated:", total, "\n")
+#cat("Features that PASSED normality:", passed, "\n")
+#cat("Features that FAILED normality:", failed, "\n")
+#cat("Total features evaluated:", total, "\n")
 
 
 ```
